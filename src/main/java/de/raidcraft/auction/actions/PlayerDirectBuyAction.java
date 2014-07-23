@@ -1,4 +1,4 @@
-package de.raidcraft.actions;
+package de.raidcraft.auction.actions;
 
 /**
  * @author Dragonfire

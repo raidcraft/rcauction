@@ -1,4 +1,4 @@
-package de.raidcraft.events;
+package de.raidcraft.auction.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Dragonfire
  */
-public class AuctionCreatedEvent extends Event {
+public class PlayerDirectBuyEvent extends Event {
 
     // Bukkit stuff
     private static final HandlerList handlers = new HandlerList();

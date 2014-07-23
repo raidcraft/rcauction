@@ -1,0 +1,7 @@
+name: Auction
+main: de.raidcraft.auction.AuctionPlugin
+version: ${project.version}#${build.number}
+author: Dragonfire
+website: www.raid-craft.de
+depend: [RaidCraft-API]
+database: true

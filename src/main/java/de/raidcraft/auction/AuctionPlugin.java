@@ -6,8 +6,11 @@ import de.raidcraft.api.action.action.ActionFactory;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
+import de.raidcraft.api.pluginaction.RC_PluginAction;
+import de.raidcraft.auction.actions.PlayerBidAction;
 import de.raidcraft.auction.actions.PlayerOpenPlattformsAction;
 import de.raidcraft.auction.commands.AdminCommands;
+import de.raidcraft.auction.listeners.AuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Sebastian
@@ -36,6 +40,16 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         setupDatabase();
         registerActions();
         registerCommands(AdminCommands.class);
+
+        RC_PluginAction.getInstance().registerAction(new AuctionListener());
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+
+            @Override
+            public void run() {
+
+                RC_PluginAction.getInstance().fire(new PlayerBidAction(UUID.randomUUID(), 1, 123.45));
+            }
+        }, -1, 20);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
             @Override

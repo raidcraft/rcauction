@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Sebastian
@@ -71,9 +70,7 @@ public class AdminCommands {
                 return;
             }
             Menu menu = new Menu("testMenu");
-            Random r = new Random();
-            int n = r.nextInt(250);
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < 80; i++) {
                 menu.addMenuItem(new MenuItem(Material.APPLE, "item: " + i));
             }
             ChestUI.getInstance().openMenu((Player) sender, menu);

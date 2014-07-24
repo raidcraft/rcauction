@@ -6,7 +6,7 @@
 
     <artifactId>auction</artifactId>
     <packaging>jar</packaging>
-    <version>0.1-develop-SNAPSHOT</version>
+    <version>1.0.0-develop-SNAPSHOT</version>
     <name>Auction</name>
 
     <parent>

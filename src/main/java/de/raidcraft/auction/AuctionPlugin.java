@@ -1,21 +1,17 @@
 package de.raidcraft.auction;
 
 import de.raidcraft.api.BasePlugin;
-import de.raidcraft.api.action.action.ActionException;
-import de.raidcraft.api.action.action.ActionFactory;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
-import de.raidcraft.auction.actions.PlayerBidAction;
-import de.raidcraft.auction.actions.PlayerOpenPlattformsAction;
+import de.raidcraft.api.storage.ItemStorage;
+import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.listeners.AuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author Sebastian
@@ -33,38 +28,15 @@ import java.util.UUID;
 public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
     public Map<String, TPlattform> plattforms = new HashMap<>();
+    private ItemStorage itemStore;
 
     @Override
     public void enable() {
 
+        itemStore = new ItemStorage(getName());
         setupDatabase();
-        registerActions();
         registerCommands(AdminCommands.class);
-
-        RC_PluginAction.getInstance().registerAction(new AuctionListener());
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-
-            @Override
-            public void run() {
-
-                RC_PluginAction.getInstance().fire(new PlayerBidAction(UUID.randomUUID(), 1, 123.45));
-            }
-        }, -1, 20);
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            @Override
-            public void run() {
-
-                getLogger().warning("actiontime");
-                MemoryConfiguration config = new MemoryConfiguration();
-                config.set("plattforms", new String[]{"all", "secrets"});
-                try {
-                    ActionFactory.getInstance().create("auction.open", config);
-                } catch (ActionException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, 20 * 10);
+        RC_PluginAction.getInstance().registerAction(new AuctionListener(this));
     }
 
     public void showPlattforms(Player player, List<String> s_plattforms) {
@@ -100,14 +72,23 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
     }
 
+    public TPlattform getPlattform(String plattform_name) {
+        return plattforms.get(plattform_name);
+    }
+
+    public int storeItem(ItemStack item) {
+
+        return this.itemStore.storeObject(item);
+    }
+
+    public ItemStack getItemForId(int item_id) throws StorageException {
+
+        return this.itemStore.getObject(item_id);
+    }
+
     @Override
     public void disable() {
         //TODO: implement
-    }
-
-    private void registerActions() {
-
-        ActionFactory.getInstance().registerGlobalAction("auction.open", new PlayerOpenPlattformsAction(this));
     }
 
     @Override
@@ -126,7 +107,8 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
             for (TPlattform plattform : getDatabase().find(TPlattform.class).findList()) {
                 plattforms.put(plattform.getName(), plattform);
             }
-        } catch (PersistenceException ex) {
+        } catch (PersistenceException e) {
+            e.printStackTrace();
             getLogger().warning("Installing database for " + getDescription().getName() + " due to first time usage");
             installDDL();
         }

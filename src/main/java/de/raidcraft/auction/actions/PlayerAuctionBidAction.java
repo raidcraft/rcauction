@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * @author Dragonfire
  */
-public class PlayerBidAction implements PluginAction {
+public class PlayerAuctionBidAction implements PluginAction {
     @Getter
     private UUID player;
     @Getter
@@ -16,7 +16,7 @@ public class PlayerBidAction implements PluginAction {
     @Getter
     private double bid;
 
-    public PlayerBidAction(UUID player, int auction, double bid) {
+    public PlayerAuctionBidAction(UUID player, int auction, double bid) {
 
         this.player = player;
         this.auction = auction;

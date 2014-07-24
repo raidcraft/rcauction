@@ -5,17 +5,13 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import de.raidcraft.api.chestui.ChestUI;
-import de.raidcraft.api.chestui.Menu;
-import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.language.TranslationProvider;
+import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
-import org.bukkit.Material;
+import de.raidcraft.auction.actions.PlayerAuctionStartAction;
+import de.raidcraft.auction.actions.PlayerOpenPlattformAction;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Sebastian
@@ -59,56 +55,27 @@ public class AdminCommands {
 
         @Command(
                 aliases = {"create", "new"},
-                desc = "Create a new plattform",
-                min = 1,
-                usage = "<name>"
+                desc = "Create a new auction",
+                min = 5,
+                usage = "<plattform> <item_slot> <direct_buy> <start_bid> <duration_days> "
         )
         @CommandPermissions("dragontravelplus.create")
         public void create(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
+                sender.sendMessage("Spielerkommando");
                 return;
             }
-            Menu menu = new Menu("testMenu");
-            for (int i = 0; i < 80; i++) {
-                menu.addMenuItem(new MenuItem(Material.APPLE, "item: " + i));
-            }
-            ChestUI.getInstance().openMenu((Player) sender, menu);
+            String plattform = context.getString(0);
+            int slot = context.getInteger(1);
+            double direct_buy = context.getDouble(2);
+            double start_bid = context.getDouble(3);
+            int duration_days = context.getInteger(4);
 
-            //            int costLevel = 1;
-            //            boolean mainStation = false;
-            //            boolean emergencyTarget = false;
-            //
-            //            if (context.hasFlag('c')) {
-            //                costLevel = context.getFlagInteger('c', 1);
-            //            }
-            //
-            //            if (context.hasFlag('m')) {
-            //                mainStation = true;
-            //            }
-            //
-            //            if (context.hasFlag('e')) {
-            //                emergencyTarget = true;
-            //            }
-            //
-            ////            DragonStation station;
-            ////            try {
-            ////                station = stationManager.createNewStation(context.getString(0)
-            ////                        , context.getJoinedStrings(1)
-            ////                        , ((Player) sender).getLocation()
-            ////                        , costLevel
-            ////                        , mainStation
-            ////                        , emergencyTarget);
-            ////            } catch (UnknownStationException e) {
-            ////                throw new CommandException(e.getMessage());
-            ////            }
-            ////
-            ////            NPCManager.createDragonGuard(station);
-            ////
-            ////            // dynmap
-            ////            DynmapManager.INST.addStationMarker(station);
-            //
-            //            tr.msg(sender, "cmd.station.create", "You have created a dragon station with the name: %s", station.getDisplayName());
+            PlayerAuctionStartAction action = new PlayerAuctionStartAction(
+                    (Player) sender, plattform, slot, direct_buy, start_bid, duration_days);
+            RC_PluginAction.getInstance().fire(action);
+
         }
 
         @Command(
@@ -148,11 +115,7 @@ public class AdminCommands {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("Das ist ein Spieler Kommando!");
             }
-            List<String> platts = new ArrayList<>();
-            platts.add("all");
-            platts.add("secret");
-            //            plugin.openPlattform((Player) sender, platts);
-            ChestUI.getInstance().openMoneySelection((Player) sender, "money select", 0);
+            RC_PluginAction.getInstance().fire(new PlayerOpenPlattformAction((Player) sender, "all"));
         }
     }
 }

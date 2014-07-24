@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -32,9 +33,21 @@ public class TAuction {
     @Setter
     @NotNull
     private TPlattform plattform;
+    @Getter
+    @Setter
+    private double direct_buy;
+    @Getter
+    @Setter
+    private Date auction_end;
+    @Getter
+    @Setter
+    private double start_bid;
 
     public void Auction() {
 
     }
 
+    public TAuction() {
+
+    }
 }

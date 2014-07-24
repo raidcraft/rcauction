@@ -5,13 +5,18 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
+import de.raidcraft.api.chestui.ChestUI;
+import de.raidcraft.api.chestui.Menu;
+import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.auction.AuctionPlugin;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author Sebastian
@@ -61,6 +66,17 @@ public class AdminCommands {
         )
         @CommandPermissions("dragontravelplus.create")
         public void create(CommandContext context, CommandSender sender) throws CommandException {
+
+            if (!(sender instanceof Player)) {
+                return;
+            }
+            Menu menu = new Menu("testMenu");
+            Random r = new Random();
+            int n = r.nextInt(250);
+            for (int i = 0; i < n; i++) {
+                menu.addMenuItem(new MenuItem(Material.APPLE, "item: " + i));
+            }
+            ChestUI.getInstance().openMenu((Player) sender, menu);
 
             //            int costLevel = 1;
             //            boolean mainStation = false;
@@ -131,13 +147,15 @@ public class AdminCommands {
         )
         @CommandPermissions("autcion.open")
         public void open(CommandContext context, CommandSender sender) throws CommandException {
-            if(!(sender instanceof Player)) {
+
+            if (!(sender instanceof Player)) {
                 sender.sendMessage("Das ist ein Spieler Kommando!");
             }
             List<String> platts = new ArrayList<>();
             platts.add("all");
             platts.add("secret");
-            plugin.openPlattform((Player) sender, platts);
+            //            plugin.openPlattform((Player) sender, platts);
+            ChestUI.getInstance().openMoneySelection((Player) sender, "money select", 0);
         }
     }
 }

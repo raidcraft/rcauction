@@ -14,6 +14,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "auction_bids")
 public class TBid {
+
     @Getter
     @Setter
     @Id

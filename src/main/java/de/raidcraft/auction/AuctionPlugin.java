@@ -5,7 +5,7 @@ import de.raidcraft.api.action.action.ActionException;
 import de.raidcraft.api.action.action.ActionFactory;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
-import de.raidcraft.api.chestui.MenuItem;
+import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.auction.actions.PlayerOpenPlattformsAction;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.model.TAuction;
@@ -14,6 +14,7 @@ import de.raidcraft.auction.model.TPlattform;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.persistence.PersistenceException;
@@ -25,7 +26,7 @@ import java.util.Map;
 /**
  * @author Sebastian
  */
-public class AuctionPlugin extends BasePlugin {
+public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
     public Map<String, TPlattform> plattforms = new HashMap<>();
 
@@ -39,6 +40,7 @@ public class AuctionPlugin extends BasePlugin {
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
             @Override
             public void run() {
+
                 getLogger().warning("actiontime");
                 MemoryConfiguration config = new MemoryConfiguration();
                 config.set("plattforms", new String[]{"all", "secrets"});
@@ -51,22 +53,37 @@ public class AuctionPlugin extends BasePlugin {
         }, 20 * 10);
     }
 
-    public void openPlattform(Player player, List<String> s_plattforms) {
+    public void showPlattforms(Player player, List<String> s_plattforms) {
+
         List<TPlattform> player_plattforms = new ArrayList<>();
-        for(String s_plattform : s_plattforms) {
-            if(this.plattforms.containsKey(s_plattform)) {
+        for (String s_plattform : s_plattforms) {
+            if (this.plattforms.containsKey(s_plattform)) {
                 player_plattforms.add(this.plattforms.get(s_plattform));
             }
         }
         Menu menu = new Menu("Choose your Plattform");
-        for(TPlattform platt : player_plattforms) {
+        for (TPlattform platt : player_plattforms) {
             MenuItem item = new MenuItem();
             ItemMeta meta = item.getItem().getItemMeta();
             meta.setDisplayName(platt.getName());
             item.getItem().setItemMeta(meta);
             menu.addMenuItem(item);
-        };
+        }
+        ;
         ChestUI.getInstance().openMenu(player, menu);
+    }
+
+    public void openPlattform(Player player, String player_plattform) {
+
+        Menu menu = new Menu(player_plattform + " Seite 1");
+        ChestUI.getInstance().openMenu(player, menu);
+    }
+
+    public void startAuction(Player player, int inventory_slot) {
+
+        ItemStack item = player.getInventory().getItem(inventory_slot);
+
+
     }
 
     @Override

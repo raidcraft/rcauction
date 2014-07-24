@@ -13,6 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "auction_plattforms")
 public class TPlattform {
+
     @Getter
     @Setter
     @Id

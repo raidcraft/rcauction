@@ -12,9 +12,11 @@ import java.util.List;
  * @author Dragonfire
  */
 public class PlayerOpenPlattformsAction implements Action<Player> {
+
     private AuctionPlugin plugin;
 
     public PlayerOpenPlattformsAction(AuctionPlugin plugin) {
+
         this.plugin = plugin;
     }
 
@@ -26,7 +28,7 @@ public class PlayerOpenPlattformsAction implements Action<Player> {
             throw new AuctionException("Du hast nicht das Recht das Auktionshaus zu öffnen!");
         }
         List<String> plattforms = getConfig().getStringList("plattforms");
-        if(plattforms.size() < 1) {
+        if (plattforms.size() < 1) {
             throw new AuctionException("Keine Plattformen zum handeln gefunden!");
         }
         throw new AuctionException("Es geht!");

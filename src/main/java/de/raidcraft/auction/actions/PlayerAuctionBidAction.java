@@ -9,6 +9,7 @@ import java.util.UUID;
  * @author Dragonfire
  */
 public class PlayerAuctionBidAction implements PluginAction {
+
     @Getter
     private UUID player;
     @Getter

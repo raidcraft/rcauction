@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
  * @author Dragonfire
  */
 public class PlayerAuctionDirectBuyAction implements PluginAction {
+
     @Getter
     private Player player;
     @Getter

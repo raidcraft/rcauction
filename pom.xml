@@ -32,8 +32,11 @@
             <groupId>de.raidcraft</groupId>
             <artifactId>raidcraft-api</artifactId>
             <version>1.4.3-develop-SNAPSHOT</version>
-
         </dependency>
-
+        <dependency>
+            <groupId>de.raidcraft</groupId>
+            <artifactId>rcconversations</artifactId>
+            <version>${rc.version}</version>
+        </dependency>
     </dependencies>
 </project>

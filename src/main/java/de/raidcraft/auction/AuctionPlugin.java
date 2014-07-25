@@ -1,5 +1,8 @@
 package de.raidcraft.auction;
 
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
+import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Sebastian
@@ -39,6 +43,7 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         RC_PluginAction.getInstance().registerAction(new AuctionListener(this));
     }
 
+    @Override
     public void showPlattforms(Player player, List<String> s_plattforms) {
 
         List<TPlattform> player_plattforms = new ArrayList<>();
@@ -59,27 +64,40 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         ChestUI.getInstance().openMenu(player, menu);
     }
 
-    public List<TAuction> getAuctions(String plattform) {
+    public List<TAuction> getActiveAuctions(String plattform) {
 
         List<TAuction> list = new ArrayList<>();
         TPlattform t_plattform = this.plattforms.get(plattform);
         if (plattform == null) {
             return list;
         }
-        return getDatabase().find(TAuction.class).fetch("plattform").
-                where().eq("plattform.name", t_plattform.getName()).findList();
+        return getDatabase().find(TAuction.class).
+                where().and(Expr.eq("plattform.name", t_plattform.getName()),
+                Expr.or(Expr.gt("auction_end", "NOW()"), Expr.gt("direct_buy", 0))).findList();
     }
 
-    public void openPlattform(Player player, String player_plattform) {
+    // SELECT * FROM auction_bids a WHERE bid = (SELECT MAX(bid) FROM auction_bids b WHERE a.auction_id = b.auction_id)
+    public List<Integer> getItemsForGrab(UUID player, TPlattform plattform) {
 
-        Menu menu = new Menu(player_plattform + " Seite 1");
-        ChestUI.getInstance().openMenu(player, menu);
+        String sql = "select order_id, sum(order_qty*unit_price) as total_amount from o_order_detail  where order_qty > :minQty  group by order_id";
+        List<SqlRow> sqlRows = Ebean.createSqlQuery(sql)
+                .setParameter("minQty", 1)
+                .findList();
+
+        // just getting the first row of the list
+        SqlRow sqlRow = sqlRows.get(0);
+
+        Integer id = sqlRow.getInteger("order_id");
+        Double amount = sqlRow.getDouble("total_amount");
+        getDatabase().find(TBid.class).fetch("auction").where().lt("auction_end", "NOW()");
+        return null;
     }
 
-    public void startAuction(Player player, int inventory_slot) {
+    public UUID getHeighestBidder(int auction_id) {
 
-        ItemStack item = player.getInventory().getItem(inventory_slot);
-
+        return getDatabase().find(TBid.class)
+                .where().eq("auction", auction_id)
+                .order("bid DESC").setMaxRows(1).findList().get(0).getBidder();
 
     }
 

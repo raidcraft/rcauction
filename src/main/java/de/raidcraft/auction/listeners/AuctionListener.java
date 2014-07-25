@@ -93,7 +93,7 @@ public class AuctionListener implements PluginActionListener {
             return;
         }
 
-        List<TAuction> auctions = plugin.getAuctions(plattform.getName());
+        List<TAuction> auctions = plugin.getActiveAuctions(plattform.getName());
         Menu menu = new Menu("Plattform: " + plattform.getName());
         int i = 0;
         for (TAuction auc : auctions) {
@@ -103,9 +103,9 @@ public class AuctionListener implements PluginActionListener {
             } catch (StorageException e) {
                 plugin.getLogger().warning("cannot load item " + auc.getStart_bid() + " for auction " + auc.getId());
             }
-            menu.addMenuItem(new MenuItem(item));
+            menu.addMenuItem(new MenuItem().setItem(item));
             // TODO: find highest bid
-            MenuItemAPI price = new MenuItem(getPriceMaterial(auc.getStart_bid()), "Preis");
+            MenuItemAPI price = new MenuItem().setItem(getPriceMaterial(auc.getStart_bid()), "Preis");
             RC_Items.setLore(price.getItem(), "Startgebot: " + auc.getStart_bid(),
                     "Direktkauf: " + auc.getDirect_buy());
             menu.addMenuItem(price);

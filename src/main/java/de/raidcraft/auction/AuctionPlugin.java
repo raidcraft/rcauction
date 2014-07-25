@@ -59,6 +59,17 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         ChestUI.getInstance().openMenu(player, menu);
     }
 
+    public List<TAuction> getAuctions(String plattform) {
+
+        List<TAuction> list = new ArrayList<>();
+        TPlattform t_plattform = this.plattforms.get(plattform);
+        if (plattform == null) {
+            return list;
+        }
+        return getDatabase().find(TAuction.class).fetch("plattform").
+                where().eq("plattform.name", t_plattform.getName()).findList();
+    }
+
     public void openPlattform(Player player, String player_plattform) {
 
         Menu menu = new Menu(player_plattform + " Seite 1");
@@ -73,6 +84,7 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
     }
 
     public TPlattform getPlattform(String plattform_name) {
+
         return plattforms.get(plattform_name);
     }
 

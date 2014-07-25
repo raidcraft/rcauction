@@ -106,7 +106,7 @@ public class AdminCommands {
         @Command(
                 aliases = {"open", "auctions"},
                 desc = "Open the auction plattforms",
-                min = 1,
+                min = 0,
                 usage = "<plattformlist>"
         )
         @CommandPermissions("autcion.open")
@@ -115,7 +115,8 @@ public class AdminCommands {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("Das ist ein Spieler Kommando!");
             }
-            RC_PluginAction.getInstance().fire(new PlayerOpenPlattformAction((Player) sender, "all"));
+            String player_plattform = (context.argsLength() == 0) ? "all" : context.getString(0);
+            RC_PluginAction.getInstance().fire(new PlayerOpenPlattformAction((Player) sender, player_plattform));
         }
     }
 }

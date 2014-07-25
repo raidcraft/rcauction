@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Date;
 import java.util.UUID;
@@ -32,6 +33,7 @@ public class TAuction {
     @Getter
     @Setter
     @NotNull
+    @ManyToOne
     private TPlattform plattform;
     @Getter
     @Setter

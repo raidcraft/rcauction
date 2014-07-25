@@ -8,8 +8,8 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.actions.PlayerAuctionStartAction;
-import de.raidcraft.auction.actions.PlayerOpenPlattformAction;
+import de.raidcraft.auction.pluginactions.PlayerAuctionStartAction;
+import de.raidcraft.auction.pluginactions.PlayerOpenPlattformAction;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

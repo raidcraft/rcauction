@@ -1,4 +1,4 @@
-package de.raidcraft.auction.actions;
+package de.raidcraft.auction.pluginactions;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;

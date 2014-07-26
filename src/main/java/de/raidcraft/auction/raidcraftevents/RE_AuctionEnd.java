@@ -1,19 +1,12 @@
-package de.raidcraft.auction.events;
+package de.raidcraft.auction.raidcraftevents;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
  * @author Dragonfire
  */
-public class PlayerGrabItemEvent extends Event implements Cancellable {
-
-    @Setter
-    @Getter
-    boolean cancelled = false;
+public class RE_AuctionEnd extends Event {
 
     // Bukkit stuff
     private static final HandlerList handlers = new HandlerList();

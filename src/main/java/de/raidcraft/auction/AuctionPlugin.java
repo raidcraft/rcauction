@@ -1,6 +1,7 @@
 package de.raidcraft.auction;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.chestui.ChestUI;
@@ -70,8 +71,10 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         if (plattform == null) {
             return list;
         }
+        // TODO: fix it
         return getDatabase().find(TAuction.class).fetch("plattform").
-                where().eq("plattform.name", t_plattform.getName()).findList();
+                where().eq("plattform.name", t_plattform.getName()).
+                where().not(Expr.gt("NOW()", "auction_end")).findList();
     }
 
     // SELECT * FROM auction_bids a WHERE bid = (SELECT MAX(bid) FROM auction_bids b WHERE a.auction_id = b.auction_id)

@@ -10,8 +10,9 @@ import de.raidcraft.api.pluginaction.PluginActionListener;
 import de.raidcraft.api.pluginaction.RcPluginAction;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.pluginactions.PlayerAuctionStartAction;
-import de.raidcraft.auction.pluginactions.PlayerOpenPlattformAction;
+import de.raidcraft.auction.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.pluginactions.PA_PlayerAuctionStartAuction;
+import de.raidcraft.auction.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TPlattform;
 import org.bukkit.DyeColor;
@@ -39,11 +40,26 @@ public class AuctionListener implements PluginActionListener {
 
 
     @RcPluginAction
-    public void startAuction(PlayerAuctionStartAction action) {
+    public void startAuction(PA_PlayerAuctionStartAuction action) {
+        Player player = action.getPlayer();
+        if (!player.hasPermission("auctions.start")) {
+            player.sendMessage("Du kannst keine Auktion erstellen.");
+            return;
+        }
+        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        if (plattform == null) {
+            player.sendMessage("Plattform existiert nicht");
+            return;
+        }
+        //int slot = ChestUI.get
+    }
+
+    @RcPluginAction
+    public void createAuction(PA_PlayerAuctionCreate action) {
 
         Player player = action.getPlayer();
         if (!player.hasPermission("auctions.start")) {
-            player.sendMessage("Du kannst keine Auktion starten.");
+            player.sendMessage("Du kannst keine Auktion einstellen.");
             return;
         }
         TPlattform plattform = plugin.getPlattform(action.getPlattform());
@@ -80,7 +96,7 @@ public class AuctionListener implements PluginActionListener {
     }
 
     @RcPluginAction
-    public void openPlattform(PlayerOpenPlattformAction action) {
+    public void openPlattform(PA_PlayerOpenPlattform action) {
 
         Player player = action.getPlayer();
         if (!player.hasPermission("auctions.open")) {

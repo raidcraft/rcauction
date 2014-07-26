@@ -1,4 +1,4 @@
-package de.raidcraft.auction.events;
+package de.raidcraft.auction.raidcraftevents;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Dragonfire
  */
-public class AuctionStartEvent extends Event implements Cancellable {
+public class RE_PlayerDirectBuy extends Event implements Cancellable {
 
     @Setter
     @Getter

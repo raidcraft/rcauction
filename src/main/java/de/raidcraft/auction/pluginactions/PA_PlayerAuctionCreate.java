@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 /**
  * @author Dragonfire
  */
-public class PlayerAuctionStartAction implements PluginAction {
+public class PA_PlayerAuctionCreate implements PluginAction {
 
     @Getter
     private Player player;
@@ -23,8 +23,8 @@ public class PlayerAuctionStartAction implements PluginAction {
     private String plattform;
 
 
-    public PlayerAuctionStartAction(Player player, String plattform, int inventory_slot,
-                                    double direct_buy, double start_bid, int duration_days) {
+    public PA_PlayerAuctionCreate(Player player, String plattform, int inventory_slot,
+                                  double direct_buy, double start_bid, int duration_days) {
 
         this.player = player;
         this.plattform = plattform;

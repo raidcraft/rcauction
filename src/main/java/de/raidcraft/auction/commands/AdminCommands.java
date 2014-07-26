@@ -5,11 +5,12 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
+import de.raidcraft.api.chestui.ItemSelector;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.pluginactions.PlayerAuctionStartAction;
-import de.raidcraft.auction.pluginactions.PlayerOpenPlattformAction;
+import de.raidcraft.auction.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.pluginactions.PA_PlayerOpenPlattform;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -72,7 +73,7 @@ public class AdminCommands {
             double start_bid = context.getDouble(3);
             int duration_days = context.getInteger(4);
 
-            PlayerAuctionStartAction action = new PlayerAuctionStartAction(
+            PA_PlayerAuctionCreate action = new PA_PlayerAuctionCreate(
                     (Player) sender, plattform, slot, direct_buy, start_bid, duration_days);
             RC_PluginAction.getInstance().fire(action);
 
@@ -87,6 +88,7 @@ public class AdminCommands {
         @CommandPermissions("autcions.add")
         public void remove(CommandContext context, CommandSender sender) throws CommandException {
 
+            ItemSelector.getInstance().open((Player) sender, "test", null);
             //            DragonStation station;
             //            try {
             //                station = (DragonStation) stationManager.getStation(context.getString(0));
@@ -116,7 +118,7 @@ public class AdminCommands {
                 sender.sendMessage("Das ist ein Spieler Kommando!");
             }
             String player_plattform = (context.argsLength() == 0) ? "all" : context.getString(0);
-            RC_PluginAction.getInstance().fire(new PlayerOpenPlattformAction((Player) sender, player_plattform));
+            RC_PluginAction.getInstance().fire(new PA_PlayerOpenPlattform((Player) sender, player_plattform));
         }
     }
 }

@@ -9,8 +9,8 @@ import de.raidcraft.api.chestui.ItemSelector;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.pluginactions.PA_PlayerAuctionCreate;
-import de.raidcraft.auction.pluginactions.PA_PlayerOpenPlattform;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

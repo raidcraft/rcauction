@@ -1,4 +1,4 @@
-package de.raidcraft.auction.pluginactions;
+package de.raidcraft.auction.api.pluginactions;
 
 import de.raidcraft.api.pluginaction.PluginAction;
 import lombok.Getter;

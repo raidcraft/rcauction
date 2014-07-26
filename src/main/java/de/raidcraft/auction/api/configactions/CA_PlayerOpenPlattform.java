@@ -1,8 +1,8 @@
-package de.raidcraft.auction.configactions;
+package de.raidcraft.auction.api.configactions;
 
 import de.raidcraft.api.RaidCraftException;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
-import de.raidcraft.auction.pluginactions.PA_PlayerOpenPlattform;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.rcconversations.api.action.AbstractAction;
 import de.raidcraft.rcconversations.api.action.ActionArgumentList;
 import de.raidcraft.rcconversations.api.action.ActionInformation;

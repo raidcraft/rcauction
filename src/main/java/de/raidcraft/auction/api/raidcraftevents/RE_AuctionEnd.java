@@ -1,4 +1,4 @@
-package de.raidcraft.auction.raidcraftevents;
+package de.raidcraft.auction.api.raidcraftevents;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -6,7 +6,7 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Dragonfire
  */
-public class RE_AuctionExpire extends Event {
+public class RE_AuctionEnd extends Event {
 
     // Bukkit stuff
     private static final HandlerList handlers = new HandlerList();

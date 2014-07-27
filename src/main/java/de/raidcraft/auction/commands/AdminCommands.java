@@ -5,7 +5,6 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import de.raidcraft.api.chestui.ItemSelector;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
@@ -13,6 +12,8 @@ import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 /**
  * @author Sebastian
@@ -88,7 +89,9 @@ public class AdminCommands {
         @CommandPermissions("autcions.add")
         public void remove(CommandContext context, CommandSender sender) throws CommandException {
 
-            ItemSelector.getInstance().open((Player) sender, "test", null);
+//            ItemSelector.getInstance().open((Player) sender, "test", null);
+            List<?> list = plugin.getEndedAuction (((Player) sender).getUniqueId(), "all");
+            sender.sendMessage(list.size() + "");
             //            DragonStation station;
             //            try {
             //                station = (DragonStation) stationManager.getStation(context.getString(0));

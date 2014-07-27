@@ -1,7 +1,7 @@
 package de.raidcraft.auction;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.SqlRow;
+import com.avaje.ebean.RawSql;
+import com.avaje.ebean.RawSqlBuilder;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
@@ -64,34 +64,66 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         ChestUI.getInstance().openMenu(player, menu);
     }
 
-    public List<TAuction> getActiveAuctions(String plattform) {
+    public TPlattform getPlattform(String name) {
 
-        List<TAuction> list = new ArrayList<>();
-        TPlattform t_plattform = this.plattforms.get(plattform);
-        if (plattform == null) {
-            return list;
-        }
-        Date now = new Date();
-        return getDatabase().find(TAuction.class).fetch("plattform").where().
-                eq("plattform", t_plattform).
-                gt("auction_end", now).findList();
+        List<TPlattform> platts = getDatabase().find(TPlattform.class)
+                .where()
+                .eq("name", name).setMaxRows(1).findList();
+        return (platts.size() > 0) ? platts.get(0) : null;
     }
 
+    public List<TAuction> getActiveAuctions(String plattform) {
+
+        Date now = new Date();
+        return getDatabase().find(TAuction.class).fetch("plattform")
+                .where()
+                .in("plattform", getPlattform(plattform))
+                .gt("auction_end", now).findList();
+    }
+
+    public List<TAuction> getEndedAuctions(String plattform) {
+
+        Date now = new Date();
+        return getDatabase().find(TAuction.class).fetch("plattform")
+                .where()
+                .in("plattform", getPlattform(plattform))
+                .lt("auction_end", now).findList();
+    }
+
+
     // SELECT * FROM auction_bids a WHERE bid = (SELECT MAX(bid) FROM auction_bids b WHERE a.auction_id = b.auction_id)
-    public List<Integer> getItemsForGrab(UUID player, TPlattform plattform) {
+    public List<TBid> getEndedAuction(UUID player, String plattform) {
 
-        String sql = "select order_id, sum(order_qty*unit_price) as total_amount from o_order_detail  where order_qty > :minQty  group by order_id";
-        List<SqlRow> sqlRows = Ebean.createSqlQuery(sql)
-                .setParameter("minQty", 1)
+        String max_bids
+                = "SELECT b.id, b.auction_id, b.bid, b.bidder, a.owner, a.plattform_id, "
+                + "p.name, a.item, a.direct_buy, a.auction_end, a.start_bid FROM auction_bids b "
+                + "LEFT JOIN auction_auctions a ON a.id = b.auction_id "
+                + "LEFT JOIN auction_plattforms p ON a.plattform_id = p.id "
+                + "WHERE bid = (SELECT MAX(b2.bid) FROM auction_bids b2 WHERE b.auction_id = b2.auction_id) "
+                + "AND a.auction_end < NOW()";
+        RawSql rawSql = RawSqlBuilder
+                // let ebean parse the SQL so that it can
+                // add expressions to the WHERE and HAVING
+                // clauses
+                .parse(max_bids)
+                        // map resultSet columns to bean properties
+                .columnMapping("b.id", "id")
+                .columnMapping("b.auction_id", "auction.id")
+                .columnMapping("b.bid", "bid")
+                .columnMapping("b.bidder", "bidder")
+                .columnMapping("a.owner", "auction.owner")
+                .columnMapping("a.plattform_id", "auction.plattform.id")
+                .columnMapping("p.name", "auction.plattform.name")
+                .columnMapping("a.item", "auction.item")
+                .columnMapping("a.direct_buy", "auction.direct_buy")
+                .columnMapping("a.auction_end", "auction.auction_end")
+                .columnMapping("a.start_bid", "auction.start_bid")
+                .create();
+
+        return getDatabase().find(TBid.class).setRawSql(rawSql).where()
+                .eq("auction.plattform.name", plattform)
+                .eq("bidder", player)
                 .findList();
-
-        // just getting the first row of the list
-        SqlRow sqlRow = sqlRows.get(0);
-
-        Integer id = sqlRow.getInteger("order_id");
-        Double amount = sqlRow.getDouble("total_amount");
-        getDatabase().find(TBid.class).fetch("auction").where().lt("auction_end", "NOW()");
-        return null;
     }
 
     public UUID getHeighestBidder(int auction_id) {
@@ -102,10 +134,6 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
     }
 
-    public TPlattform getPlattform(String plattform_name) {
-
-        return plattforms.get(plattform_name);
-    }
 
     public int storeItem(ItemStack item) {
 

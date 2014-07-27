@@ -1,12 +1,13 @@
 package de.raidcraft.auction.api.pluginactions;
 
+import de.raidcraft.api.pluginaction.PluginAction;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
 /**
  * @author Dragonfire
  */
-public class PA_PlayerOpenOwnPlattformInventory {
+public class PA_PlayerOpenOwnPlattformInventory implements PluginAction {
 
     @Getter
     private Player player;

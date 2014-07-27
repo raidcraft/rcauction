@@ -22,6 +22,7 @@ public class TBid {
     @Setter
     @Id
     private int id;
+
     @Getter
     @Setter
     @ManyToOne

@@ -5,6 +5,7 @@ import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
+import de.raidcraft.api.inventory.RC_Inventory;
 import de.raidcraft.api.items.RC_Items;
 import de.raidcraft.api.pluginaction.PluginActionListener;
 import de.raidcraft.api.pluginaction.RcPluginAction;
@@ -12,12 +13,16 @@ import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStartAuction;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.auction.model.TAuction;
+import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.SimpleDateFormat;
@@ -41,6 +46,7 @@ public class AuctionListener implements PluginActionListener {
 
     @RcPluginAction
     public void startAuction(PA_PlayerAuctionStartAuction action) {
+
         Player player = action.getPlayer();
         if (!player.hasPermission("auctions.start")) {
             player.sendMessage("Du kannst keine Auktion erstellen.");
@@ -172,5 +178,35 @@ public class AuctionListener implements PluginActionListener {
             return Material.IRON_INGOT;
         }
         return Material.NETHER_BRICK_ITEM;
+    }
+
+    @RcPluginAction
+    public void openPlattformInventory(PA_PlayerOpenOwnPlattformInventory action) {
+
+        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        if (plattform == null) {
+            action.getPlayer().sendMessage("Plattform nicht vorhanden: " + action.getPlattform());
+        }
+        Player player = action.getPlayer();
+        List<TBid> sucessBids = plugin.getEndedAuction(
+                player.getUniqueId(), action.getPlattform());
+        Inventory inv = Bukkit.createInventory(player,
+                RC_Inventory.COLUMN_COUNT * RC_Inventory.MAX_ROWS,
+                "Lager: " + action.getPlattform());
+        int slot = 0;
+        for (TBid bid : sucessBids) {
+            try {
+                inv.setItem(slot, plugin.getItemForId(bid.getAuction().getItem()));
+            } catch (StorageException e) {
+                e.printStackTrace();
+            }
+            slot++;
+            if (slot >= inv.getSize()) {
+                player.sendMessage("Du hast sehr viele Items ersteigert");
+                break;
+            }
+        }
+        Bukkit.getPluginManager().registerEvents(new PickupListener(player, inv, sucessBids, plugin), plugin);
+        player.openInventory(inv);
     }
 }

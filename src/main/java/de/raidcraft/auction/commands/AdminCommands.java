@@ -9,14 +9,14 @@ import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
+import de.raidcraft.auction.model.TPlattform;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-
 /**
- * @author Sebastian
+ * @author Dragonfire
  */
 public class AdminCommands {
 
@@ -81,31 +81,24 @@ public class AdminCommands {
         }
 
         @Command(
-                aliases = {"delete", "remove"},
-                desc = "Remove a plattform",
+                aliases = {"pick", "grab"},
+                desc = "Holt Aktionsitems ab",
                 min = 1,
-                usage = "<name>"
+                usage = "<plattform>"
         )
         @CommandPermissions("autcions.add")
         public void remove(CommandContext context, CommandSender sender) throws CommandException {
 
-//            ItemSelector.getInstance().open((Player) sender, "test", null);
-            List<?> list = plugin.getEndedAuction (((Player) sender).getUniqueId(), "all");
-            sender.sendMessage(list.size() + "");
-            //            DragonStation station;
-            //            try {
-            //                station = (DragonStation) stationManager.getStation(context.getString(0));
-            //            } catch (UnknownStationException e) {
-            //                throw new CommandException(e.getMessage());
-            //            }
-            //
-            //            NPCManager.removeDragonGuard(station);
-            //
-            //            stationManager.deleteStation(station);
-            //            DynmapManager.INST.removeMarker(station);
-            //            RaidCraft.getComponent(DragonTravelPlusPlugin.class).reload();
-            //
-            //            tr.msg(sender, "cmd.station.delete", "You deleted the dragon station: %s", station.getDisplayName());
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Das ist ein Spieler Kommando!");
+            }
+            TPlattform plattform = plugin.getPlattform(context.getString(0));
+            if (plattform == null) {
+                sender.sendMessage("Plattform existiert nicht!");
+                return;
+            }
+            RC_PluginAction.getInstance().fire(
+                    new PA_PlayerOpenOwnPlattformInventory((Player) sender, plattform.getName()));
         }
 
         @Command(
@@ -121,7 +114,8 @@ public class AdminCommands {
                 sender.sendMessage("Das ist ein Spieler Kommando!");
             }
             String player_plattform = (context.argsLength() == 0) ? "all" : context.getString(0);
-            RC_PluginAction.getInstance().fire(new PA_PlayerOpenPlattform((Player) sender, player_plattform));
+            RC_PluginAction.getInstance().fire(
+                    new PA_PlayerOpenPlattform((Player) sender, player_plattform));
         }
     }
 }

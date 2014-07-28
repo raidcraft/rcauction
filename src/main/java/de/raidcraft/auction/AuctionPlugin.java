@@ -11,6 +11,7 @@ import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.listeners.AuctionListener;
+import de.raidcraft.auction.listeners.StartAuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
@@ -41,6 +42,7 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         setupDatabase();
         registerCommands(AdminCommands.class);
         RC_PluginAction.getInstance().registerAction(new AuctionListener(this));
+        RC_PluginAction.getInstance().registerAction(new StartAuctionListener(this));
     }
 
     @Override

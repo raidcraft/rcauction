@@ -7,14 +7,14 @@ import org.bukkit.entity.Player;
 /**
  * @author Dragonfire
  */
-public class PA_PlayerAuctionStartAuction implements PluginAction {
+public class PA_PlayerAuctionStart implements PluginAction {
 
     @Getter
     private Player player;
     @Getter
     private String plattform;
 
-    public PA_PlayerAuctionStartAuction(Player player, String plattform) {
+    public PA_PlayerAuctionStart(Player player, String plattform) {
 
         this.player = player;
         this.plattform = plattform;

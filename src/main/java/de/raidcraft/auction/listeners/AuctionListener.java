@@ -12,7 +12,6 @@ import de.raidcraft.api.pluginaction.RcPluginAction;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.auction.model.TAuction;
@@ -41,19 +40,6 @@ public class AuctionListener implements PluginActionListener {
     public AuctionListener(AuctionPlugin plugin) {
 
         this.plugin = plugin;
-    }
-
-
-    @RcPluginAction
-    public void startAuction(PA_PlayerAuctionStart action) {
-
-        Player player = action.getPlayer();
-        TPlattform plattform = plugin.getPlattform(action.getPlattform());
-        if (plattform == null) {
-            player.sendMessage("Plattform existiert nicht");
-            return;
-        }
-        //int slot = ChestUI.get
     }
 
     @RcPluginAction

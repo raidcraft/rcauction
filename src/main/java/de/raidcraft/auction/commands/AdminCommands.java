@@ -9,6 +9,7 @@ import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.auction.model.TPlattform;
@@ -70,6 +71,23 @@ public class AdminCommands {
 
             plugin.reload();
             tr.msg(sender, "cmd.reload", "Plugin was sucessfully reloaded!");
+        }
+
+        @Command(
+                aliases = {"start", "begin"},
+                desc = "Start a new auction",
+                min = 1,
+                usage = "<plattform>"
+        )
+        @CommandPermissions("auction.create")
+        public void start(CommandContext context, CommandSender sender) throws CommandException {
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Spielerkommando");
+                return;
+            }
+            RC_PluginAction.getInstance().fire(
+                    new PA_PlayerAuctionStart((Player) sender, context.getString(0)));
         }
 
         @Command(

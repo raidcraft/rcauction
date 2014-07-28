@@ -1,6 +1,5 @@
 package de.raidcraft.auction.listeners;
 
-import com.avaje.ebean.LogLevel;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.model.TBid;
 import org.bukkit.entity.Player;
@@ -57,9 +56,6 @@ public class PickupListener  implements Listener {
         }
         player.getInventory().setItem(newslot, storage.getItem(slot));
         storage.clear(slot);
-        plugin.getDatabase().getAdminLogging().setDebugGeneratedSql(true);
-        plugin.getDatabase().getAdminLogging().setDebugLazyLoad(true);
-        plugin.getDatabase().getAdminLogging().setLogLevel(LogLevel.SQL);
         plugin.getDatabase().delete(bids.get(slot).getAuction());
     }
 

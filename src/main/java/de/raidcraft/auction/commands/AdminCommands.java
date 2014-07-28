@@ -45,6 +45,23 @@ public class AdminCommands {
         }
 
         @Command(
+                aliases = {"pnew", "pcreate"},
+                desc = "Creates a new plattform",
+                min = 1,
+                usage = "<plattform_name "
+        )
+        @CommandPermissions("auction.plattform.create")
+        public void pnew(CommandContext context, CommandSender sender) throws CommandException {
+
+            TPlattform plattform = plugin.getPlattform(context.getString(0));
+            if (plattform != null) {
+                sender.sendMessage("Plattform already exists");
+            }
+            int id = plugin.createPlattform(context.getString(0));
+            sender.sendMessage("Plattform created with id: " + id);
+        }
+
+        @Command(
                 aliases = {"reload"},
                 desc = "Reload config and database"
         )
@@ -61,7 +78,7 @@ public class AdminCommands {
                 min = 5,
                 usage = "<plattform> <item_slot> <direct_buy> <start_bid> <duration_days> "
         )
-        @CommandPermissions("dragontravelplus.create")
+        @CommandPermissions("auction.create")
         public void create(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
@@ -81,12 +98,12 @@ public class AdminCommands {
         }
 
         @Command(
-                aliases = {"pick", "grab"},
+                aliases = {"pick", "grab", "pickup"},
                 desc = "Holt Aktionsitems ab",
                 min = 1,
                 usage = "<plattform>"
         )
-        @CommandPermissions("autcions.add")
+        @CommandPermissions("autcions.pickup")
         public void remove(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
@@ -107,7 +124,7 @@ public class AdminCommands {
                 min = 0,
                 usage = "<plattformlist>"
         )
-        @CommandPermissions("autcion.open")
+        @CommandPermissions("autcion.plattform.open")
         public void open(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {

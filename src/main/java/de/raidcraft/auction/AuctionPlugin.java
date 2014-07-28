@@ -145,6 +145,14 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         return this.itemStore.getObject(item_id);
     }
 
+    public int createPlattform(String name) {
+
+        TPlattform plattform = new TPlattform();
+        plattform.setName(name);
+        getDatabase().save(plattform);
+        return plattform.getId();
+    }
+
     @Override
     public void disable() {
         //TODO: implement

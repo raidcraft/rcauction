@@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Dragonfire
  */
-public class RE_PlayerGrabItem extends Event implements Cancellable {
+public class RE_PlayerPickupItem extends Event implements Cancellable {
 
     @Setter
     @Getter

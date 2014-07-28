@@ -11,10 +11,10 @@ import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.listeners.AuctionListener;
-import de.raidcraft.auction.listeners.StartAuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,7 +42,6 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         setupDatabase();
         registerCommands(AdminCommands.class);
         RC_PluginAction.getInstance().registerAction(new AuctionListener(this));
-        RC_PluginAction.getInstance().registerAction(new StartAuctionListener(this));
     }
 
     @Override
@@ -64,6 +63,23 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         }
         ;
         ChestUI.getInstance().openMenu(player, menu);
+    }
+
+    public static Material getPriceMaterial(double money) {
+
+        if (money > 9999) {
+            return Material.DIAMOND;
+        }
+        if (money > 99) {
+            return Material.GOLD_INGOT;
+        }
+        if (money > 0.99) {
+            return Material.IRON_INGOT;
+        }
+        if(money == 0) {
+            return Material.RAW_FISH;
+        }
+        return Material.NETHER_BRICK_ITEM;
     }
 
     public TPlattform getPlattform(String name) {

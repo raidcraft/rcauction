@@ -12,14 +12,15 @@ import de.raidcraft.api.pluginaction.RcPluginAction;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
+import de.raidcraft.auction.model.StartAuctionProcess;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -65,14 +66,12 @@ public class AuctionListener implements PluginActionListener {
         auction.setItem(item_id);
         auction.setDirect_buy(action.getDirect_buy());
         auction.setStart_bid(action.getStart_bid());
-        if (action.getStart_bid() > 0) {
-            // TODO: time functions
-            Date now = new Date();
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(now);
-            cal.add(Calendar.DAY_OF_YEAR, action.getDuration_days());
-            auction.setAuction_end(cal.getTime());
-        }
+
+        Date now = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        cal.add(Calendar.DAY_OF_YEAR, action.getDuration_days());
+        auction.setAuction_end(cal.getTime());
 
         plugin.getDatabase().save(auction);
         // TODO: event
@@ -101,7 +100,7 @@ public class AuctionListener implements PluginActionListener {
             }
             menu.addMenuItem(new MenuItem().setItem(item));
             // TODO: find highest bid
-            MenuItemAPI price = new MenuItem().setItem(getPriceMaterial(auc.getStart_bid()), "Preis");
+            MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
             RC_Items.setLore(price.getItem(), "Startgebot: " + auc.getStart_bid(),
                     "Direktkauf: " + auc.getDirect_buy());
             menu.addMenuItem(price);
@@ -114,7 +113,7 @@ public class AuctionListener implements PluginActionListener {
             ItemStack days_normal = RC_Items.getGlassPane(DyeColor.WHITE);
             RC_Items.setDisplayName(days_normal, "Aktionstage");
             RC_Items.setLore(days_normal, "Ende: " + endDate);
-            MenuItemAPI days = new MenuItemInteractive(null, days_normal,
+            MenuItemAPI days = new MenuItemInteractive(days_normal, null,
                     getDateDiff(now, auc.getAuction_end(), TimeUnit.DAYS), 99);
             menu.addMenuItem(days);
 
@@ -122,7 +121,7 @@ public class AuctionListener implements PluginActionListener {
             ItemStack hours_normal = RC_Items.getGlassPane(DyeColor.WHITE);
             RC_Items.setDisplayName(hours_normal, "Auktionsstunden");
             RC_Items.setLore(hours_normal, "Ende: " + endDate);
-            MenuItemAPI hours = new MenuItemInteractive(null, hours_normal,
+            MenuItemAPI hours = new MenuItemInteractive(hours_normal, null,
                     getDateDiff(now, auc.getAuction_end(), TimeUnit.HOURS) % 24, 99);
             menu.addMenuItem(hours);
 
@@ -138,20 +137,6 @@ public class AuctionListener implements PluginActionListener {
 
         long diffInMillies = newDate.getTime() - oldDate.getTime();
         return (int) timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
-    }
-
-    private Material getPriceMaterial(double money) {
-
-        if (money > 9999) {
-            return Material.DIAMOND;
-        }
-        if (money > 99) {
-            return Material.GOLD_INGOT;
-        }
-        if (money > 0.99) {
-            return Material.IRON_INGOT;
-        }
-        return Material.NETHER_BRICK_ITEM;
     }
 
     @RcPluginAction
@@ -182,5 +167,19 @@ public class AuctionListener implements PluginActionListener {
         }
         Bukkit.getPluginManager().registerEvents(new PickupListener(player, inv, sucessBids, plugin), plugin);
         player.openInventory(inv);
+    }
+
+    @RcPluginAction
+    public void startAuction(PA_PlayerAuctionStart action) {
+
+        Player player = action.getPlayer();
+        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        if (plattform == null) {
+            player.sendMessage("Plattform existiert nicht");
+            return;
+        }
+        final StartAuctionProcess process =
+                new StartAuctionProcess(plugin, player, plattform.getName());
+        process.selectItem();
     }
 }

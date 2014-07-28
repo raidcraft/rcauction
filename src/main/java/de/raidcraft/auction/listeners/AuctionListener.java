@@ -1,5 +1,6 @@
 package de.raidcraft.auction.listeners;
 
+import de.raidcraft.RaidCraft;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
@@ -15,6 +16,8 @@ import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
+import de.raidcraft.auction.api.raidcraftevents.RE_AuctionCreate;
+import de.raidcraft.auction.api.raidcraftevents.RE_AuctionStart;
 import de.raidcraft.auction.model.StartAuctionProcess;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
@@ -73,8 +76,13 @@ public class AuctionListener implements PluginActionListener {
         cal.add(Calendar.DAY_OF_YEAR, action.getDuration_days());
         auction.setAuction_end(cal.getTime());
 
+
+        RE_AuctionCreate event = new RE_AuctionCreate(auction);
+        RaidCraft.callEvent(event);
+        if(event.isCancelled()) {
+            return;
+        }
         plugin.getDatabase().save(auction);
-        // TODO: event
         player.sendMessage("Auktion erfolgreich erstellt");
     }
 
@@ -176,6 +184,12 @@ public class AuctionListener implements PluginActionListener {
         TPlattform plattform = plugin.getPlattform(action.getPlattform());
         if (plattform == null) {
             player.sendMessage("Plattform existiert nicht");
+            return;
+        }
+
+        RE_AuctionStart event = new RE_AuctionStart(player, plattform);
+        RaidCraft.callEvent(event);
+        if(event.isCancelled()) {
             return;
         }
         final StartAuctionProcess process =

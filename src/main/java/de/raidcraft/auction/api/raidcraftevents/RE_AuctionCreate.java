@@ -1,9 +1,8 @@
 package de.raidcraft.auction.api.raidcraftevents;
 
-import de.raidcraft.auction.model.TPlattform;
+import de.raidcraft.auction.model.TAuction;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -11,22 +10,18 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Dragonfire
  */
-public class RE_AuctionStart extends Event implements Cancellable {
+public class RE_AuctionCreate extends Event implements Cancellable {
 
     @Setter
     @Getter
     boolean cancelled = false;
     @Setter
     @Getter
-    private Player player;
-    @Setter
-    @Getter
-    private TPlattform plattform;
+    private TAuction auction;
 
-    public RE_AuctionStart(Player player, TPlattform plattform) {
+    public RE_AuctionCreate(TAuction auction) {
 
-        this.player = player;
-        this.plattform = plattform;
+        this.auction = auction;
     }
 
     // Bukkit stuff

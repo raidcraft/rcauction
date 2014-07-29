@@ -1,26 +1,21 @@
 package de.raidcraft.auction.api.configactions;
 
 import de.raidcraft.RaidCraft;
-import de.raidcraft.api.RaidCraftException;
+import de.raidcraft.api.action.action.Action;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.rcconversations.api.action.AbstractAction;
-import de.raidcraft.rcconversations.api.action.ActionArgumentList;
-import de.raidcraft.rcconversations.api.action.ActionInformation;
-import de.raidcraft.rcconversations.api.conversation.Conversation;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 /**
  * @author Dragonfire
  */
 
-@ActionInformation(name = "AUCTION_START")
-public class CA_PlayerAuctionStart extends AbstractAction {
+public class CA_PlayerAuctionStart implements Action<Player> {
 
     @Override
-    public void run(Conversation conversation, ActionArgumentList args) throws RaidCraftException {
+    public void accept(Player player, ConfigurationSection config) {
 
-        String plattform = args.getString("plattform", null);
-        Player player = conversation.getPlayer();
+        String plattform = config.getString("plattform", null);
         RaidCraft.getComponent(AuctionPlugin.class).getAPI()
                 .playerAuctionStart(player, plattform);
     }

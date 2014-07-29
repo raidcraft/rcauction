@@ -183,7 +183,7 @@ public class AuctionPlugin extends BasePlugin {
                 + " FROM minecraft_main.auction_auctions "
                 + "WHERE auction_end > NOW() ORDER by auction_END ASC LIMIT 1";
         SqlRow row = getDatabase().createSqlQuery(sql).findUnique();
-        return row.isEmpty() ? -1 : row.getLong("next").longValue();
+        return (row == null) ? -1 : row.getLong("next").longValue();
     }
 
     public int storeItem(ItemStack item) {

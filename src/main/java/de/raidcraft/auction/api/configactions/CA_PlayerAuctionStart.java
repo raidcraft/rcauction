@@ -1,8 +1,8 @@
 package de.raidcraft.auction.api.configactions;
 
+import de.raidcraft.RaidCraft;
 import de.raidcraft.api.RaidCraftException;
-import de.raidcraft.api.pluginaction.RC_PluginAction;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
+import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.rcconversations.api.action.AbstractAction;
 import de.raidcraft.rcconversations.api.action.ActionArgumentList;
 import de.raidcraft.rcconversations.api.action.ActionInformation;
@@ -21,6 +21,7 @@ public class CA_PlayerAuctionStart extends AbstractAction {
 
         String plattform = args.getString("plattform", null);
         Player player = conversation.getPlayer();
-        RC_PluginAction.getInstance().fire(new PA_PlayerAuctionStart(player, plattform));
+        RaidCraft.getComponent(AuctionPlugin.class).getAPI()
+                .playerAuctionStart(player, plattform);
     }
 }

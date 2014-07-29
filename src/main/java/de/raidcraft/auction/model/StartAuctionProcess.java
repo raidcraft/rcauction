@@ -7,9 +7,7 @@ import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
-import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
 import de.raidcraft.util.ItemUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
@@ -223,9 +221,8 @@ public class StartAuctionProcess {
     public void create() {
 
         player.closeInventory();
-        PA_PlayerAuctionCreate action = new PA_PlayerAuctionCreate(player, plattform, slot,
-                direct_buy, start_bid, durationInDays);
-        RC_PluginAction.getInstance().fire(action);
+        plugin.getAPI().playerAuctionCreate(player, plattform, slot,
+                start_bid, direct_buy, durationInDays);
 
     }
 

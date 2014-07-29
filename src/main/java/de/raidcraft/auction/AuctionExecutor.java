@@ -1,4 +1,4 @@
-package de.raidcraft.auction.listeners;
+package de.raidcraft.auction;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.chestui.ChestUI;
@@ -6,25 +6,18 @@ import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
 import de.raidcraft.api.economy.BalanceSource;
-import de.raidcraft.util.InventoryUtils;
-import de.raidcraft.api.pluginaction.PluginActionListener;
-import de.raidcraft.api.pluginaction.RcPluginAction;
 import de.raidcraft.api.storage.StorageException;
-import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionDirectBuy;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
+import de.raidcraft.auction.api.AuctionAPI;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionCreate;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionStart;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerBid;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerDirectBuy;
+import de.raidcraft.auction.listeners.PickupListener;
 import de.raidcraft.auction.model.StartAuctionProcess;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import de.raidcraft.util.InventoryUtils;
 import de.raidcraft.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -37,48 +30,49 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Dragonfire
  */
-public class AuctionListener implements PluginActionListener {
+public class AuctionExecutor implements AuctionAPI {
 
     private AuctionPlugin plugin;
 
-    public AuctionListener(AuctionPlugin plugin) {
+    public AuctionExecutor(AuctionPlugin plugin) {
 
         this.plugin = plugin;
     }
 
-    @RcPluginAction
-    public void createAuction(PA_PlayerAuctionCreate action) {
+    @Override
+    public void playerAuctionCreate(Player player, String sPlattform, int inventorySlot,
+                                    double startBid, double directBuy, int durationInDays) {
 
-        Player player = action.getPlayer();
-        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        TPlattform plattform = plugin.getPlattform(sPlattform);
         if (plattform == null) {
             player.sendMessage("Plattform existiert nicht");
             return;
         }
-        ItemStack item = player.getInventory().getItem(action.getInventory_slot());
+        ItemStack item = player.getInventory().getItem(inventorySlot);
         if (item == null) {
             player.sendMessage("Kein Item gefunden.");
             return;
         }
-        player.getInventory().clear(action.getInventory_slot());
+        player.getInventory().clear(inventorySlot);
         int item_id = plugin.storeItem(item);
 
         TAuction auction = new TAuction();
         auction.setPlattform(plattform);
         auction.setOwner(player.getUniqueId());
         auction.setItem(item_id);
-        auction.setDirect_buy(action.getDirect_buy());
-        auction.setStart_bid(action.getStart_bid());
+        auction.setDirect_buy(directBuy);
+        auction.setStart_bid(startBid);
 
         Date now = new Date();
         Calendar cal = Calendar.getInstance();
         cal.setTime(now);
-        cal.add(Calendar.DAY_OF_YEAR, action.getDuration_days());
+        cal.add(Calendar.DAY_OF_YEAR, durationInDays);
         auction.setAuction_end(cal.getTime());
 
 
@@ -91,11 +85,10 @@ public class AuctionListener implements PluginActionListener {
         player.sendMessage("Auktion erfolgreich erstellt");
     }
 
-    @RcPluginAction
-    public void openPlattform(PA_PlayerOpenPlattform action) {
+    @Override
+    public void playerOpenPlattform(Player player, String sPlattform) {
 
-        Player player = action.getPlayer();
-        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        TPlattform plattform = plugin.getPlattform(sPlattform);
         if (plattform == null) {
             player.sendMessage("Keine Plattformen zum handeln gefunden!");
             return;
@@ -160,19 +153,18 @@ public class AuctionListener implements PluginActionListener {
         ChestUI.getInstance().openMenu(player, menu);
     }
 
-    @RcPluginAction
-    public void openPlattformInventory(PA_PlayerOpenOwnPlattformInventory action) {
+    @Override
+    public void playerOpenOwnPlattformInventory(Player player, String sPlattform) {
 
-        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        TPlattform plattform = plugin.getPlattform(sPlattform);
         if (plattform == null) {
-            action.getPlayer().sendMessage("Plattform nicht vorhanden: " + action.getPlattform());
+            player.sendMessage("Plattform nicht vorhanden: " + sPlattform);
         }
-        Player player = action.getPlayer();
         List<TBid> sucessBids = plugin.getEndedAuction(
-                player.getUniqueId(), action.getPlattform());
+                player.getUniqueId(), sPlattform);
         Inventory inv = Bukkit.createInventory(player,
                 InventoryUtils.COLUMN_COUNT * InventoryUtils.MAX_ROWS,
-                "Lager: " + action.getPlattform());
+                "Lager: " + sPlattform);
         int slot = 0;
         for (TBid bid : sucessBids) {
             try {
@@ -190,11 +182,10 @@ public class AuctionListener implements PluginActionListener {
         player.openInventory(inv);
     }
 
-    @RcPluginAction
-    public void startAuction(PA_PlayerAuctionStart action) {
+    @Override
+    public void playerAuctionStart(Player player, String sPlattform) {
 
-        Player player = action.getPlayer();
-        TPlattform plattform = plugin.getPlattform(action.getPlattform());
+        TPlattform plattform = plugin.getPlattform(sPlattform);
         if (plattform == null) {
             player.sendMessage("Plattform existiert nicht");
             return;
@@ -210,31 +201,31 @@ public class AuctionListener implements PluginActionListener {
         process.selectItem();
     }
 
-    @RcPluginAction
-    public void playerBid(PA_PlayerAuctionBid action) {
+    @Override
+    public void playerAuctionBid(UUID player, int iAuction, double dBid) {
 
-        TAuction auction = plugin.getAuction(action.getAuction());
+        TAuction auction = plugin.getAuction(iAuction);
         if (auction == null) {
             return;
         }
         // TODO: convert to UUID
         if (!RaidCraft.getEconomy().hasEnough(
-                Bukkit.getPlayer(action.getPlayer()).getName(), action.getBid())) {
-            Bukkit.getPlayer(action.getPlayer()).sendMessage("Du hast nicht so viel Geld");
+                Bukkit.getPlayer(player).getName(), dBid)) {
+            Bukkit.getPlayer(player).sendMessage("Du hast nicht so viel Geld");
             return;
         }
-        if (action.getBid() <= auction.getStart_bid()) {
-            Bukkit.getPlayer(action.getPlayer()).sendMessage("Dein Gebot ist zu niedrieg");
+        if (dBid <= auction.getStart_bid()) {
+            Bukkit.getPlayer(player).sendMessage("Dein Gebot ist zu niedrieg");
             return;
         }
-        TBid heighestBid = plugin.getHeighestBid(action.getAuction());
-        if (heighestBid != null && action.getBid() >= heighestBid.getBid()) {
-            Bukkit.getPlayer(action.getPlayer()).sendMessage("Es gibt bereits ein höheres Gebot");
+        TBid heighestBid = plugin.getHeighestBid(iAuction);
+        if (heighestBid != null && dBid >= heighestBid.getBid()) {
+            Bukkit.getPlayer(player).sendMessage("Es gibt bereits ein höheres Gebot");
             return;
         }
         TBid bid = new TBid();
-        bid.setBid(action.getBid());
-        bid.setBidder(action.getPlayer());
+        bid.setBid(dBid);
+        bid.setBidder(player);
         bid.setAuction(auction);
         RE_PlayerBid event = new RE_PlayerBid(bid);
         RaidCraft.callEvent(event);
@@ -242,13 +233,13 @@ public class AuctionListener implements PluginActionListener {
             return;
         }
         plugin.getDatabase().save(bid);
-        Bukkit.getPlayer(action.getPlayer()).sendMessage("Erfolgreich geboten");
+        Bukkit.getPlayer(player).sendMessage("Erfolgreich geboten");
     }
 
-    @RcPluginAction
-    public void playerDirectBuy(PA_PlayerAuctionDirectBuy action) {
+    @Override
+    public void playerAuctionDirectBuy(Player player, int iAuction) {
 
-        TAuction auction = plugin.getAuction(action.getAuction());
+        TAuction auction = plugin.getAuction(iAuction);
         if (auction == null) {
             return;
         }
@@ -257,7 +248,6 @@ public class AuctionListener implements PluginActionListener {
         if (event.isCancelled()) {
             return;
         }
-        Player player = action.getPlayer();
 
         if (!RaidCraft.getEconomy().hasEnough(player.getName(), auction.getStart_bid())) {
             player.sendMessage("Du hast nicht genügend Geld");

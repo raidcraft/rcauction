@@ -10,16 +10,17 @@ import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
-import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
-import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionDirectBuy;
+import de.raidcraft.auction.api.AuctionAPI;
+import de.raidcraft.auction.api.configactions.CA_PlayerAuctionStart;
+import de.raidcraft.auction.api.configactions.CA_PlayerOpenOwnPlattformInventory;
+import de.raidcraft.auction.api.configactions.CA_PlayerOpenPlattform;
 import de.raidcraft.auction.commands.AdminCommands;
-import de.raidcraft.auction.listeners.AuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import de.raidcraft.rcconversations.actions.ActionManager;
 import de.raidcraft.util.ItemUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -38,23 +39,27 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Sebastian
+ * @author Dragonfire
  */
-public class AuctionPlugin extends BasePlugin implements AuctionAPI {
+public class AuctionPlugin extends BasePlugin {
 
     public Map<String, TPlattform> plattforms = new HashMap<>();
     private ItemStorage itemStore;
+    private AuctionAPI exectutor;
 
     @Override
     public void enable() {
 
         itemStore = new ItemStorage(getName());
         setupDatabase();
-        registerCommands(AdminCommands.class);
-        RC_PluginAction.getInstance().registerAction(new AuctionListener(this));
+        registerCommands(AdminCommands.class, getName());
+        exectutor = new AuctionExecutor(this);
+
+        ActionManager.registerAction(new CA_PlayerAuctionStart());
+        ActionManager.registerAction(new CA_PlayerOpenOwnPlattformInventory());
+        ActionManager.registerAction(new CA_PlayerOpenPlattform());
     }
 
-    @Override
     public void showPlattforms(Player player, List<String> s_plattforms) {
 
         List<TPlattform> player_plattforms = new ArrayList<>();
@@ -246,8 +251,7 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
                 @Override
                 public void trigger(Player player) {
 
-                    RC_PluginAction.getInstance().fire(
-                            new PA_PlayerAuctionDirectBuy(player, auction.getId()));
+                    getAPI().playerAuctionDirectBuy(player, auction.getId());
                 }
             }.setItem(ItemUtils.getGlassPane(DyeColor.YELLOW), "Direktkauf");
             ItemUtils.setLore(direct.getItem(), "Preis: "
@@ -279,9 +283,8 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
             @Override
             public void accept(Player player, double money) {
-
-                RC_PluginAction.getInstance().fire(
-                        new PA_PlayerAuctionBid(player.getUniqueId(), auction.getId(), money));
+                // TODO: move to api
+                getAPI().playerAuctionBid(player.getUniqueId(), auction.getId(), money);
             }
         });
     }
@@ -311,13 +314,21 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
     private void setupDatabase() {
 
         try {
-            for (TPlattform plattform : getDatabase().find(TPlattform.class).findList()) {
-                plattforms.put(plattform.getName(), plattform);
-            }
+            getDatabase();
         } catch (PersistenceException e) {
             e.printStackTrace();
             getLogger().warning("Installing database for " + getDescription().getName() + " due to first time usage");
             installDDL();
         }
+    }
+
+    public AuctionAPI getAPI() {
+
+        return exectutor;
+    }
+
+    public AuctionAPI getProvider() {
+
+        return getAPI();
     }
 }

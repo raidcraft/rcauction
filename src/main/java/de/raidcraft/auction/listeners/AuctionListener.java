@@ -217,6 +217,12 @@ public class AuctionListener implements PluginActionListener {
         if (auction == null) {
             return;
         }
+        // TODO: convert to UUID
+        if (!RaidCraft.getEconomy().hasEnough(
+                Bukkit.getPlayer(action.getPlayer()).getName(), action.getBid())) {
+            Bukkit.getPlayer(action.getPlayer()).sendMessage("Du hast nicht so viel Geld");
+            return;
+        }
         if (action.getBid() <= auction.getStart_bid()) {
             Bukkit.getPlayer(action.getPlayer()).sendMessage("Dein Gebot ist zu niedrieg");
             return;
@@ -253,7 +259,7 @@ public class AuctionListener implements PluginActionListener {
         }
         Player player = action.getPlayer();
 
-        if (RaidCraft.getEconomy().hasEnough(player.getName(), auction.getStart_bid())) {
+        if (!RaidCraft.getEconomy().hasEnough(player.getName(), auction.getStart_bid())) {
             player.sendMessage("Du hast nicht genügend Geld");
             return;
         }

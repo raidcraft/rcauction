@@ -7,10 +7,10 @@ import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
-import de.raidcraft.api.items.RC_Items;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.util.ItemUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.entity.Player;
 
@@ -70,7 +70,7 @@ public class StartAuctionProcess {
                 direct_buy = 0;
                 selectStartBid();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.ORANGE, "Direktverkauf + Aktion")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.ORANGE, "Direktverkauf + Aktion")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -78,7 +78,7 @@ public class StartAuctionProcess {
                 start_bid = 0;
                 selectStartBid();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.RED, "nur Aktion")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.RED, "nur Aktion")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -86,7 +86,7 @@ public class StartAuctionProcess {
                 direct_buy = 0;
                 selectDirectBuy();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.YELLOW, "nur Direktverkauf")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.YELLOW, "nur Direktverkauf")));
         ChestUI.getInstance().openMenu(player, menu);
     }
 
@@ -142,7 +142,7 @@ public class StartAuctionProcess {
                 durationInDays = 30;
                 confirm();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.PURPLE, "30 Tage")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.PURPLE, "30 Tage")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -150,7 +150,7 @@ public class StartAuctionProcess {
                 durationInDays = 14;
                 confirm();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.RED, "14 Tage")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.RED, "14 Tage")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -158,7 +158,7 @@ public class StartAuctionProcess {
                 durationInDays = 7;
                 confirm();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.ORANGE, "7 Tage")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.ORANGE, "7 Tage")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -166,7 +166,7 @@ public class StartAuctionProcess {
                 durationInDays = 3;
                 confirm();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.YELLOW, "3 Tage")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.YELLOW, "3 Tage")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -174,7 +174,7 @@ public class StartAuctionProcess {
                 durationInDays = 1;
                 confirm();
             }
-        }.setItem(RC_Items.getGlassPane(DyeColor.LIME, "1 Tag")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.LIME, "1 Tag")));
         ChestUI.getInstance().openMenu(player, menu);
     }
 
@@ -188,7 +188,7 @@ public class StartAuctionProcess {
         if (start_bid >= 0) {
             MenuItem item_start_bid = new MenuItem();
             item_start_bid.setItem(AuctionPlugin.getPriceMaterial(start_bid), "Startgebot");
-            RC_Items.setLore(item_start_bid.getItem(), "Startgebot: "
+            ItemUtils.setLore(item_start_bid.getItem(), "Startgebot: "
                     + RaidCraft.getEconomy().getFormattedAmount(start_bid));
             menu.addMenuItem(item_start_bid);
         } else {
@@ -198,16 +198,16 @@ public class StartAuctionProcess {
         if (direct_buy >= 0) {
             MenuItem item_direct_buy = new MenuItem();
             item_direct_buy.setItem(AuctionPlugin.getPriceMaterial(start_bid), "DirektKaufWert");
-            RC_Items.setLore(item_direct_buy.getItem(), "DirektKaufWert: "
+            ItemUtils.setLore(item_direct_buy.getItem(), "DirektKaufWert: "
                     + RaidCraft.getEconomy().getFormattedAmount(direct_buy));
             menu.addMenuItem(item_direct_buy);
         } else {
             menu.empty();
         }
 
-        MenuItemAPI duration = new MenuItem().setItem(RC_Items.getGlassPane(DyeColor.WHITE), "Aktionsdauer");
+        MenuItemAPI duration = new MenuItem().setItem(ItemUtils.getGlassPane(DyeColor.WHITE), "Aktionsdauer");
         duration.getItem().setAmount(durationInDays);
-        RC_Items.setLore(duration.getItem(), "Aktionstage: " + durationInDays);
+        ItemUtils.setLore(duration.getItem(), "Aktionstage: " + durationInDays);
         menu.addMenuItem(duration);
         menu.empty();
         menu.addMenuItem(new MenuItemAPI() {

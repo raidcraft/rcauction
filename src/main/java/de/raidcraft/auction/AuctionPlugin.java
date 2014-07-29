@@ -10,7 +10,6 @@ import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
-import de.raidcraft.api.items.RC_Items;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
@@ -21,6 +20,7 @@ import de.raidcraft.auction.listeners.AuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import de.raidcraft.util.ItemUtils;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -200,7 +200,7 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         menu.empty();
         menu.addMenuItem(new MenuItem().setItem(item));
         MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
-        RC_Items.setLore(price.getItem(), "Startgebot: "
+        ItemUtils.setLore(price.getItem(), "Startgebot: "
                 + RaidCraft.getEconomy().getFormattedAmount(getMinimumBid(auction)),
                 "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
         menu.addMenuItem(price);
@@ -210,17 +210,17 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         String endDate = format.format(auction.getAuction_end());
 
         // day item
-        ItemStack days_normal = RC_Items.getGlassPane(DyeColor.WHITE);
-        RC_Items.setDisplayName(days_normal, "Aktionstage");
-        RC_Items.setLore(days_normal, "Ende: " + endDate);
+        ItemStack days_normal = ItemUtils.getGlassPane(DyeColor.WHITE);
+        ItemUtils.setDisplayName(days_normal, "Aktionstage");
+        ItemUtils.setLore(days_normal, "Ende: " + endDate);
         MenuItemAPI days = new MenuItemInteractive(days_normal, null,
                 getDateDiff(now, auction.getAuction_end(), TimeUnit.DAYS), 99);
         menu.addMenuItem(days);
 
         // hour item
-        ItemStack hours_normal = RC_Items.getGlassPane(DyeColor.WHITE);
-        RC_Items.setDisplayName(hours_normal, "Auktionsstunden");
-        RC_Items.setLore(hours_normal, "Ende: " + endDate);
+        ItemStack hours_normal = ItemUtils.getGlassPane(DyeColor.WHITE);
+        ItemUtils.setDisplayName(hours_normal, "Auktionsstunden");
+        ItemUtils.setLore(hours_normal, "Ende: " + endDate);
         MenuItemAPI hours = new MenuItemInteractive(hours_normal, null,
                 getDateDiff(now, auction.getAuction_end(), TimeUnit.HOURS) % 24, 99);
         menu.addMenuItem(hours);
@@ -233,8 +233,8 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
                     playerStartBid(player, auction);
                 }
-            }.setItem(RC_Items.getGlassPane(DyeColor.RED), "Bieten");
-            RC_Items.setLore(bid.getItem(), "Mindesgebot: "
+            }.setItem(ItemUtils.getGlassPane(DyeColor.RED), "Bieten");
+            ItemUtils.setLore(bid.getItem(), "Mindesgebot: "
                     + RaidCraft.getEconomy().getFormattedAmount(getMinimumBid(auction)));
             menu.addMenuItem(bid);
         } else {
@@ -249,8 +249,8 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
                     RC_PluginAction.getInstance().fire(
                             new PA_PlayerAuctionDirectBuy(player, auction.getId()));
                 }
-            }.setItem(RC_Items.getGlassPane(DyeColor.YELLOW), "Direktkauf");
-            RC_Items.setLore(direct.getItem(), "Preis: "
+            }.setItem(ItemUtils.getGlassPane(DyeColor.YELLOW), "Direktkauf");
+            ItemUtils.setLore(direct.getItem(), "Preis: "
                     + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
             menu.addMenuItem(direct);
         } else {

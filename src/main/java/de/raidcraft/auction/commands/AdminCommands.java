@@ -10,6 +10,7 @@ import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionDirectBuy;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
@@ -156,7 +157,7 @@ public class AdminCommands {
 
         @Command(
                 aliases = {"bid"},
-                desc = "Open the auction plattforms",
+                desc = "Bid on a auction",
                 min = 2,
                 usage = "<auction_id> <bid>"
         )
@@ -169,6 +170,23 @@ public class AdminCommands {
             RC_PluginAction.getInstance().fire(new PA_PlayerAuctionBid(
                     ((Player) sender).getUniqueId(),
                     context.getInteger(0), context.getDouble(1)));
+        }
+
+        @Command(
+                aliases = {"buy", "directbuy"},
+                desc = "directly buy a auction",
+                min = 1,
+                usage = "<auction_id>"
+        )
+        @CommandPermissions("auction.directbuy")
+        public void directbuy(CommandContext context, CommandSender sender) throws CommandException {
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Das ist ein Spieler Kommando!");
+            }
+            RC_PluginAction.getInstance().fire(new PA_PlayerAuctionDirectBuy(
+                    ((Player) sender),
+                    context.getInteger(0)));
         }
     }
 }

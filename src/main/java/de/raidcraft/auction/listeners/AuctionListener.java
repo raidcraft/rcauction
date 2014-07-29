@@ -14,12 +14,14 @@ import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionDirectBuy;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionCreate;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionStart;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerBid;
+import de.raidcraft.auction.api.raidcraftevents.RE_PlayerDirectBuy;
 import de.raidcraft.auction.model.StartAuctionProcess;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
@@ -33,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -217,10 +220,44 @@ public class AuctionListener implements PluginActionListener {
         bid.setAuction(auction);
         RE_PlayerBid event = new RE_PlayerBid(bid);
         RaidCraft.callEvent(event);
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             return;
         }
         plugin.getDatabase().save(bid);
         Bukkit.getPlayer(action.getPlayer()).sendMessage("Erfolgreich geboten");
+    }
+
+    @RcPluginAction
+    public void playerDirectBuy(PA_PlayerAuctionDirectBuy action) {
+
+        TAuction auction = plugin.getAuction(action.getAuction());
+        if (auction == null) {
+            return;
+        }
+        action.getPlayer().sendMessage("buy auction for: " + auction.getStart_bid());
+        RE_PlayerDirectBuy event = new RE_PlayerDirectBuy(auction);
+        RaidCraft.callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
+        Player player = action.getPlayer();
+        ItemStack item = null;
+        try {
+            item = plugin.getItemForId(auction.getItem());
+        } catch (StorageException e) {
+            e.printStackTrace();
+        }
+        if (item == null) {
+            player.sendMessage("Konnte Auktionsitems nicht laden: " + auction.getId());
+            return;
+        }
+        plugin.getDatabase().delete(auction);
+        // TODO: draw money
+
+        HashMap<Integer, ItemStack> dropItems = player.getInventory().addItem(item);
+        for(ItemStack stack : dropItems.values()) {
+            player.getWorld().dropItem(player.getLocation(), stack);
+        }
+        player.sendMessage("Erfolgreich gekauft");
     }
 }

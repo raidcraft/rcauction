@@ -12,11 +12,11 @@ public class PA_PlayerAuctionDirectBuy implements PluginAction {
     @Getter
     private Player player;
     @Getter
-    private int auction_id;
+    private int auction;
 
     public PA_PlayerAuctionDirectBuy(Player player, int auction_id) {
 
         this.player = player;
-        this.auction_id = auction_id;
+        this.auction = auction_id;
     }
 }

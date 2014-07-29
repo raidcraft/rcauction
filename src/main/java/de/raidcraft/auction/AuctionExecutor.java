@@ -85,6 +85,7 @@ public class AuctionExecutor implements AuctionAPI {
         }
         plugin.getDatabase().save(auction);
         player.sendMessage("Auktion erfolgreich erstellt");
+        plugin.getTimer().start();
     }
 
     @Override

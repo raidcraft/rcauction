@@ -2,6 +2,7 @@ package de.raidcraft.auction;
 
 import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
+import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.action.ActionException;
 import de.raidcraft.api.action.action.ActionFactory;
@@ -15,6 +16,7 @@ import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -35,6 +37,8 @@ public class AuctionPlugin extends BasePlugin {
     public Map<String, TPlattform> plattforms = new HashMap<>();
     private ItemStorage itemStore;
     private AuctionAPI exectutor;
+    @Getter
+    private AuctionTimer timer;
 
     @Override
     public void enable() {
@@ -55,6 +59,8 @@ public class AuctionPlugin extends BasePlugin {
         } catch (ActionException e) {
             e.printStackTrace();
         }
+
+        timer = new AuctionTimer(this);
     }
 
     public static Material getPriceMaterial(double money) {
@@ -170,6 +176,15 @@ public class AuctionPlugin extends BasePlugin {
         return getDatabase().find(TAuction.class).where().eq("id", auction_id).findUnique();
     }
 
+
+    public long getNextAuctionEnd() {
+
+        String sql = "SELECT TIME_TO_SEC(TIMEDIFF(auction_end, NOW())) next"
+                + " FROM minecraft_main.auction_auctions "
+                + "WHERE auction_end > NOW() ORDER by auction_END ASC LIMIT 1";
+        SqlRow row = getDatabase().createSqlQuery(sql).findUnique();
+        return row.isEmpty() ? -1 : row.getLong("next").longValue();
+    }
 
     public int storeItem(ItemStack item) {
 

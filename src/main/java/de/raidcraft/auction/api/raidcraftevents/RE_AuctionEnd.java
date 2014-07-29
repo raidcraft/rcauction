@@ -6,6 +6,7 @@ import org.bukkit.event.HandlerList;
 /**
  * @author Dragonfire
  */
+// TODO: implement
 public class RE_AuctionEnd extends Event {
 
     // Bukkit stuff

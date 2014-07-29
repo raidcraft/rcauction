@@ -85,6 +85,14 @@ public class AuctionExecutor implements AuctionAPI {
         }
         plugin.getDatabase().save(auction);
         player.sendMessage("Auktion erfolgreich erstellt");
+
+        // auto bid that if nobody bids the creator get it
+        TBid creatorBid = new TBid();
+        creatorBid.setAuction(auction);
+        creatorBid.setBid(-1);
+        creatorBid.setBidder(player.getUniqueId());
+        plugin.getDatabase().save(creatorBid);
+
         plugin.getTimer().start();
     }
 

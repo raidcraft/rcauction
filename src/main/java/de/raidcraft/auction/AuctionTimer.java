@@ -63,7 +63,7 @@ public class AuctionTimer implements Runnable {
             listener.getPlayerWithEndedAuction().add(player_id);
             return;
         }
-        player.sendMessage("Du hast etwas im Auktionshaus ersteigert");
+        player.sendMessage("Ein Item liegt im Auktionshaus bereit");
     }
 
 

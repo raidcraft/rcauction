@@ -23,7 +23,7 @@ public class PlayerListener implements Listener {
         if (!playerWithEndedAuction.contains(event.getPlayer().getUniqueId())) {
             return;
         }
-        event.getPlayer().sendMessage("Du hast etwas im Auktionshaus ersteigert");
+        event.getPlayer().sendMessage("Ein Item liegt im Auktionshaus bereit");
         playerWithEndedAuction.remove(event.getPlayer().getUniqueId());
     }
 

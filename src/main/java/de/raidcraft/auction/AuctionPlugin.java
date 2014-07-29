@@ -76,7 +76,7 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         if (money > 0.99) {
             return Material.IRON_INGOT;
         }
-        if(money == 0) {
+        if (money == 0) {
             return Material.RAW_FISH;
         }
         return Material.NETHER_BRICK_ITEM;
@@ -144,12 +144,17 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
                 .findList();
     }
 
-    public UUID getHeighestBidder(int auction_id) {
+    public TBid getHeighestBid(int auction_id) {
 
         return getDatabase().find(TBid.class)
-                .where().eq("auction", auction_id)
-                .order("bid DESC").setMaxRows(1).findList().get(0).getBidder();
+                .where().eq("auction_id", auction_id).order()
+                .desc("bid").setMaxRows(1).findUnique();
 
+    }
+
+    public TAuction getAuction(int auction_id) {
+
+        return getDatabase().find(TAuction.class).where().eq("id", auction_id).findUnique();
     }
 
 

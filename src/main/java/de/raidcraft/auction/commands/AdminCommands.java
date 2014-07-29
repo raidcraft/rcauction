@@ -8,6 +8,7 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.auction.AuctionPlugin;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
@@ -121,7 +122,7 @@ public class AdminCommands {
                 min = 1,
                 usage = "<plattform>"
         )
-        @CommandPermissions("autcions.pickup")
+        @CommandPermissions("auction.pickup")
         public void remove(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
@@ -142,7 +143,7 @@ public class AdminCommands {
                 min = 0,
                 usage = "<plattformlist>"
         )
-        @CommandPermissions("autcion.plattform.open")
+        @CommandPermissions("auction.plattform.open")
         public void open(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
@@ -151,6 +152,23 @@ public class AdminCommands {
             String player_plattform = (context.argsLength() == 0) ? "all" : context.getString(0);
             RC_PluginAction.getInstance().fire(
                     new PA_PlayerOpenPlattform((Player) sender, player_plattform));
+        }
+
+        @Command(
+                aliases = {"bid"},
+                desc = "Open the auction plattforms",
+                min = 2,
+                usage = "<auction_id> <bid>"
+        )
+        @CommandPermissions("auction.bid")
+        public void bid(CommandContext context, CommandSender sender) throws CommandException {
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Das ist ein Spieler Kommando!");
+            }
+            RC_PluginAction.getInstance().fire(new PA_PlayerAuctionBid(
+                    ((Player) sender).getUniqueId(),
+                    context.getInteger(0), context.getDouble(1)));
         }
     }
 }

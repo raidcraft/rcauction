@@ -12,12 +12,14 @@ import de.raidcraft.api.pluginaction.PluginActionListener;
 import de.raidcraft.api.pluginaction.RcPluginAction;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.AuctionPlugin;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionCreate;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionStart;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.pluginactions.PA_PlayerOpenPlattform;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionCreate;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionStart;
+import de.raidcraft.auction.api.raidcraftevents.RE_PlayerBid;
 import de.raidcraft.auction.model.StartAuctionProcess;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
@@ -79,7 +81,7 @@ public class AuctionListener implements PluginActionListener {
 
         RE_AuctionCreate event = new RE_AuctionCreate(auction);
         RaidCraft.callEvent(event);
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             return;
         }
         plugin.getDatabase().save(auction);
@@ -189,11 +191,36 @@ public class AuctionListener implements PluginActionListener {
 
         RE_AuctionStart event = new RE_AuctionStart(player, plattform);
         RaidCraft.callEvent(event);
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             return;
         }
         final StartAuctionProcess process =
                 new StartAuctionProcess(plugin, player, plattform.getName());
         process.selectItem();
+    }
+
+    @RcPluginAction
+    public void playerBid(PA_PlayerAuctionBid action) {
+
+        TAuction auction = plugin.getAuction(action.getAuction());
+        if (auction == null) {
+            return;
+        }
+        TBid heighestBid = plugin.getHeighestBid(action.getAuction());
+        if (heighestBid != null && action.getBid() >= heighestBid.getBid()) {
+            Bukkit.getPlayer(action.getPlayer()).sendMessage("Es gibt bereits ein höheres Gebot");
+            return;
+        }
+        TBid bid = new TBid();
+        bid.setBid(action.getBid());
+        bid.setBidder(action.getPlayer());
+        bid.setAuction(auction);
+        RE_PlayerBid event = new RE_PlayerBid(bid);
+        RaidCraft.callEvent(event);
+        if(event.isCancelled()) {
+            return;
+        }
+        plugin.getDatabase().save(bid);
+        Bukkit.getPlayer(action.getPlayer()).sendMessage("Erfolgreich geboten");
     }
 }

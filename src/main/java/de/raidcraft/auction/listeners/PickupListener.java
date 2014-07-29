@@ -1,6 +1,8 @@
 package de.raidcraft.auction.listeners;
 
+import de.raidcraft.RaidCraft;
 import de.raidcraft.auction.AuctionPlugin;
+import de.raidcraft.auction.api.raidcraftevents.RE_PlayerPickupItem;
 import de.raidcraft.auction.model.TBid;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,7 +19,7 @@ import java.util.List;
 /**
  * @author Dragonfire
  */
-public class PickupListener  implements Listener {
+public class PickupListener implements Listener {
 
     private Player player;
     private Inventory storage;
@@ -50,8 +52,14 @@ public class PickupListener  implements Listener {
             return;
         }
         int newslot = player.getInventory().firstEmpty();
-        if(newslot < 0) {
+        if (newslot < 0) {
             player.sendMessage("Dein Inventar ist voll.");
+            return;
+        }
+        RE_PlayerPickupItem pickupevent =
+                new RE_PlayerPickupItem((Player) holder, storage.getItem(slot));
+        RaidCraft.callEvent(pickupevent);
+        if (pickupevent.isCancelled()) {
             return;
         }
         player.getInventory().setItem(newslot, storage.getItem(slot));

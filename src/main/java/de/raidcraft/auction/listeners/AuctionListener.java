@@ -127,7 +127,8 @@ public class AuctionListener implements PluginActionListener {
                     plugin.selectAuction(player, auc);
                 }
             }.setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
-            RC_Items.setLore(price.getItem(), "Startgebot: " + RaidCraft.getEconomy().getFormattedAmount(auc.getStart_bid()),
+            RC_Items.setLore(price.getItem(), "Mindesgebot: "
+                    + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auc)),
                     "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auc.getDirect_buy()));
             menu.addMenuItem(price);
 
@@ -214,6 +215,10 @@ public class AuctionListener implements PluginActionListener {
 
         TAuction auction = plugin.getAuction(action.getAuction());
         if (auction == null) {
+            return;
+        }
+        if(action.getBid() <= auction.getStart_bid()) {
+            Bukkit.getPlayer(action.getPlayer()).sendMessage("Dein Gebot ist zu niedrieg");
             return;
         }
         TBid heighestBid = plugin.getHeighestBid(action.getAuction());

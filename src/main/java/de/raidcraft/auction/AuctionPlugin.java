@@ -200,7 +200,8 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         menu.empty();
         menu.addMenuItem(new MenuItem().setItem(item));
         MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
-        RC_Items.setLore(price.getItem(), "Startgebot: " + RaidCraft.getEconomy().getFormattedAmount(auction.getStart_bid()),
+        RC_Items.setLore(price.getItem(), "Startgebot: "
+                + RaidCraft.getEconomy().getFormattedAmount(getMinimumBid(auction)),
                 "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
         menu.addMenuItem(price);
 
@@ -226,13 +227,16 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
 
         menu.empty();
         if (auction.getStart_bid() >= 0) {
-            menu.addMenuItem(new MenuItemAPI() {
+            MenuItemAPI bid = new MenuItemAPI() {
                 @Override
                 public void trigger(Player player) {
 
                     playerStartBid(player, auction);
                 }
-            }.setItem(RC_Items.getGlassPane(DyeColor.RED), "Bieten"));
+            }.setItem(RC_Items.getGlassPane(DyeColor.RED), "Bieten");
+            RC_Items.setLore(bid.getItem(), "Mindesgebot: "
+                    + RaidCraft.getEconomy().getFormattedAmount(getMinimumBid(auction)));
+            menu.addMenuItem(bid);
         } else {
             menu.empty();
         }
@@ -256,10 +260,15 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         ChestUI.getInstance().openMenu(player, menu);
     }
 
-    public void playerStartBid(final Player player, final TAuction auction) {
+    public double getMinimumBid(TAuction auction) {
 
         TBid hBid = getHeighestBid(auction.getId());
-        double heighestBid = (hBid == null) ? auction.getStart_bid() : hBid.getBid();
+        return (hBid == null) ? auction.getStart_bid() : hBid.getBid();
+    }
+
+    public void playerStartBid(final Player player, final TAuction auction) {
+
+        double heighestBid = getMinimumBid(auction);
         ChestUI.getInstance().openMoneySelection(player, "Dein Gebot", heighestBid, new MoneySelectorListener() {
 
             @Override

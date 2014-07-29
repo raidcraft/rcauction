@@ -1,5 +1,6 @@
 package de.raidcraft.auction.model;
 
+import de.raidcraft.RaidCraft;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.ItemSelectorListener;
 import de.raidcraft.api.chestui.Menu;
@@ -187,7 +188,8 @@ public class StartAuctionProcess {
         if (start_bid >= 0) {
             MenuItem item_start_bid = new MenuItem();
             item_start_bid.setItem(AuctionPlugin.getPriceMaterial(start_bid), "Startgebot");
-            RC_Items.setLore(item_start_bid.getItem(), "Startgebot: " + start_bid);
+            RC_Items.setLore(item_start_bid.getItem(), "Startgebot: "
+                    + RaidCraft.getEconomy().getFormattedAmount(start_bid));
             menu.addMenuItem(item_start_bid);
         } else {
             menu.empty();
@@ -196,7 +198,8 @@ public class StartAuctionProcess {
         if (direct_buy >= 0) {
             MenuItem item_direct_buy = new MenuItem();
             item_direct_buy.setItem(AuctionPlugin.getPriceMaterial(start_bid), "DirektKaufWert");
-            RC_Items.setLore(item_direct_buy.getItem(), "DirektKaufWert: " + direct_buy);
+            RC_Items.setLore(item_direct_buy.getItem(), "DirektKaufWert: "
+                    + RaidCraft.getEconomy().getFormattedAmount(direct_buy));
             menu.addMenuItem(item_direct_buy);
         } else {
             menu.empty();

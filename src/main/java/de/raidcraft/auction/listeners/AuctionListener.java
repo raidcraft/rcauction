@@ -6,6 +6,7 @@ import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
+import de.raidcraft.api.economy.BalanceSource;
 import de.raidcraft.api.inventory.RC_Inventory;
 import de.raidcraft.api.items.RC_Items;
 import de.raidcraft.api.pluginaction.PluginActionListener;
@@ -112,10 +113,9 @@ public class AuctionListener implements PluginActionListener {
                 plugin.getLogger().warning("cannot load item " + auc.getStart_bid() + " for auction " + auc.getId());
             }
             menu.addMenuItem(new MenuItem().setItem(item));
-            // TODO: find highest bid
             MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
-            RC_Items.setLore(price.getItem(), "Startgebot: " + auc.getStart_bid(),
-                    "Direktkauf: " + auc.getDirect_buy());
+            RC_Items.setLore(price.getItem(), "Startgebot: " + RaidCraft.getEconomy().getFormattedAmount(auc.getStart_bid()),
+                    "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auc.getDirect_buy()));
             menu.addMenuItem(price);
 
             Date now = new Date();
@@ -234,13 +234,18 @@ public class AuctionListener implements PluginActionListener {
         if (auction == null) {
             return;
         }
-        action.getPlayer().sendMessage("buy auction for: " + auction.getStart_bid());
         RE_PlayerDirectBuy event = new RE_PlayerDirectBuy(auction);
         RaidCraft.callEvent(event);
         if (event.isCancelled()) {
             return;
         }
         Player player = action.getPlayer();
+
+        if (RaidCraft.getEconomy().hasEnough(player.getName(), auction.getStart_bid())) {
+            player.sendMessage("Du hast nicht genügend Geld");
+            return;
+        }
+
         ItemStack item = null;
         try {
             item = plugin.getItemForId(auction.getItem());
@@ -251,11 +256,12 @@ public class AuctionListener implements PluginActionListener {
             player.sendMessage("Konnte Auktionsitems nicht laden: " + auction.getId());
             return;
         }
+        // TODO: delete item in storage?
         plugin.getDatabase().delete(auction);
-        // TODO: draw money
-
+        RaidCraft.getEconomy().substract(player.getName(), auction.getStart_bid(),
+                BalanceSource.AUCTION, "Direktkauf");
         HashMap<Integer, ItemStack> dropItems = player.getInventory().addItem(item);
-        for(ItemStack stack : dropItems.values()) {
+        for (ItemStack stack : dropItems.values()) {
             player.getWorld().dropItem(player.getLocation(), stack);
         }
         player.sendMessage("Erfolgreich gekauft");

@@ -1,4 +1,4 @@
-name: RcAuction
+name: RCAuction
 main: de.raidcraft.auction.AuctionPlugin
 version: ${project.version}#${build.number}
 author: Dragonfire

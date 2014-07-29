@@ -6,7 +6,7 @@ import de.raidcraft.api.chestui.Menu;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
 import de.raidcraft.api.economy.BalanceSource;
-import de.raidcraft.api.inventory.RC_Inventory;
+import de.raidcraft.util.InventoryUtils;
 import de.raidcraft.api.pluginaction.PluginActionListener;
 import de.raidcraft.api.pluginaction.RcPluginAction;
 import de.raidcraft.api.storage.StorageException;
@@ -171,7 +171,7 @@ public class AuctionListener implements PluginActionListener {
         List<TBid> sucessBids = plugin.getEndedAuction(
                 player.getUniqueId(), action.getPlattform());
         Inventory inv = Bukkit.createInventory(player,
-                RC_Inventory.COLUMN_COUNT * RC_Inventory.MAX_ROWS,
+                InventoryUtils.COLUMN_COUNT * InventoryUtils.MAX_ROWS,
                 "Lager: " + action.getPlattform());
         int slot = 0;
         for (TBid bid : sucessBids) {

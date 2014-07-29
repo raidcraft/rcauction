@@ -217,7 +217,7 @@ public class AuctionListener implements PluginActionListener {
         if (auction == null) {
             return;
         }
-        if(action.getBid() <= auction.getStart_bid()) {
+        if (action.getBid() <= auction.getStart_bid()) {
             Bukkit.getPlayer(action.getPlayer()).sendMessage("Dein Gebot ist zu niedrieg");
             return;
         }

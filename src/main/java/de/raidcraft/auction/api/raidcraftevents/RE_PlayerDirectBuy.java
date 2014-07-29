@@ -24,6 +24,7 @@ public class RE_PlayerDirectBuy extends Event implements Cancellable {
 
         this.auction = auction;
     }
+
     // Bukkit stuff
     private static final HandlerList handlers = new HandlerList();
 

@@ -2,14 +2,9 @@ package de.raidcraft.auction;
 
 import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
-import de.raidcraft.RaidCraft;
 import de.raidcraft.api.BasePlugin;
-import de.raidcraft.api.chestui.ChestUI;
-import de.raidcraft.api.chestui.Menu;
-import de.raidcraft.api.chestui.MoneySelectorListener;
-import de.raidcraft.api.chestui.menuitems.MenuItem;
-import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
-import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
+import de.raidcraft.api.action.action.ActionException;
+import de.raidcraft.api.action.action.ActionFactory;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.api.AuctionAPI;
@@ -20,16 +15,10 @@ import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
-import de.raidcraft.rcconversations.actions.ActionManager;
-import de.raidcraft.util.ItemUtils;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.persistence.PersistenceException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,29 +44,17 @@ public class AuctionPlugin extends BasePlugin {
         registerCommands(AdminCommands.class, getName());
         exectutor = new AuctionExecutor(this);
 
-        ActionManager.registerAction(new CA_PlayerAuctionStart());
-        ActionManager.registerAction(new CA_PlayerOpenOwnPlattformInventory());
-        ActionManager.registerAction(new CA_PlayerOpenPlattform());
-    }
+        try {
+            ActionFactory.getInstance().registerAction(
+                    this, "start", new CA_PlayerAuctionStart());
+            ActionFactory.getInstance().registerAction(
+                    this, "openplattforminventory", new CA_PlayerOpenOwnPlattformInventory());
+            ActionFactory.getInstance().registerAction(
+                    this, "openplattform", new CA_PlayerOpenPlattform());
 
-    public void showPlattforms(Player player, List<String> s_plattforms) {
-
-        List<TPlattform> player_plattforms = new ArrayList<>();
-        for (String s_plattform : s_plattforms) {
-            if (this.plattforms.containsKey(s_plattform)) {
-                player_plattforms.add(this.plattforms.get(s_plattform));
-            }
+        } catch (ActionException e) {
+            e.printStackTrace();
         }
-        Menu menu = new Menu("Choose your Plattform");
-        for (TPlattform platt : player_plattforms) {
-            MenuItem item = new MenuItem();
-            ItemMeta meta = item.getItem().getItemMeta();
-            meta.setDisplayName(platt.getName());
-            item.getItem().setItemMeta(meta);
-            menu.addMenuItem(item);
-        }
-        ;
-        ChestUI.getInstance().openMenu(player, menu);
     }
 
     public static Material getPriceMaterial(double money) {
@@ -114,17 +91,38 @@ public class AuctionPlugin extends BasePlugin {
                 .gt("auction_end", now).findList();
     }
 
-    public List<TAuction> getEndedAuctions(String plattform) {
+    public List<TBid> getEndedAuction() {
 
-        Date now = new Date();
-        return getDatabase().find(TAuction.class).fetch("plattform")
-                .where()
-                .in("plattform", getPlattform(plattform))
-                .lt("auction_end", now).findList();
+        String max_bids
+                = "SELECT b.id, b.auction_id, b.bid, b.bidder, a.owner, a.plattform_id, "
+                + "p.name, a.item, a.direct_buy, a.auction_end, a.start_bid FROM auction_bids b "
+                + "LEFT JOIN auction_auctions a ON a.id = b.auction_id "
+                + "LEFT JOIN auction_plattforms p ON a.plattform_id = p.id "
+                + "WHERE bid = (SELECT MAX(b2.bid) FROM auction_bids b2 WHERE b.auction_id = b2.auction_id) "
+                + "AND a.auction_end < NOW()";
+        RawSql rawSql = RawSqlBuilder
+                // let ebean parse the SQL so that it can
+                // add expressions to the WHERE and HAVING
+                // clauses
+                .parse(max_bids)
+                        // map resultSet columns to bean properties
+                .columnMapping("b.id", "id")
+                .columnMapping("b.auction_id", "auction.id")
+                .columnMapping("b.bid", "bid")
+                .columnMapping("b.bidder", "bidder")
+                .columnMapping("a.owner", "auction.owner")
+                .columnMapping("a.plattform_id", "auction.plattform.id")
+                .columnMapping("p.name", "auction.plattform.name")
+                .columnMapping("a.item", "auction.item")
+                .columnMapping("a.direct_buy", "auction.direct_buy")
+                .columnMapping("a.auction_end", "auction.auction_end")
+                .columnMapping("a.start_bid", "auction.start_bid")
+                .create();
+
+        return getDatabase().find(TBid.class).setRawSql(rawSql).where()
+                .findList();
     }
 
-
-    // SELECT * FROM auction_bids a WHERE bid = (SELECT MAX(bid) FROM auction_bids b WHERE a.auction_id = b.auction_id)
     public List<TBid> getEndedAuction(UUID player, String plattform) {
 
         String max_bids
@@ -183,110 +181,11 @@ public class AuctionPlugin extends BasePlugin {
         return this.itemStore.getObject(item_id);
     }
 
-    public int createPlattform(String name) {
-
-        TPlattform plattform = new TPlattform();
-        plattform.setName(name);
-        getDatabase().save(plattform);
-        return plattform.getId();
-    }
-
-    public void selectAuction(final Player player, TAuction auction) {
-
-        Menu menu = new Menu("Auktionsoptionen");
-        ItemStack item;
-
-        try {
-            item = getItemForId(auction.getItem());
-        } catch (StorageException e) {
-            e.printStackTrace();
-            return;
-        }
-        menu.empty();
-        menu.addMenuItem(new MenuItem().setItem(item));
-        MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
-        ItemUtils.setLore(price.getItem(), "Startgebot: "
-                + RaidCraft.getEconomy().getFormattedAmount(getMinimumBid(auction)),
-                "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
-        menu.addMenuItem(price);
-
-        Date now = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM HH:mm:ss");
-        String endDate = format.format(auction.getAuction_end());
-
-        // day item
-        ItemStack days_normal = ItemUtils.getGlassPane(DyeColor.WHITE);
-        ItemUtils.setDisplayName(days_normal, "Aktionstage");
-        ItemUtils.setLore(days_normal, "Ende: " + endDate);
-        MenuItemAPI days = new MenuItemInteractive(days_normal, null,
-                getDateDiff(now, auction.getAuction_end(), TimeUnit.DAYS), 99);
-        menu.addMenuItem(days);
-
-        // hour item
-        ItemStack hours_normal = ItemUtils.getGlassPane(DyeColor.WHITE);
-        ItemUtils.setDisplayName(hours_normal, "Auktionsstunden");
-        ItemUtils.setLore(hours_normal, "Ende: " + endDate);
-        MenuItemAPI hours = new MenuItemInteractive(hours_normal, null,
-                getDateDiff(now, auction.getAuction_end(), TimeUnit.HOURS) % 24, 99);
-        menu.addMenuItem(hours);
-
-        menu.empty();
-        if (auction.getStart_bid() >= 0) {
-            MenuItemAPI bid = new MenuItemAPI() {
-                @Override
-                public void trigger(Player player) {
-
-                    playerStartBid(player, auction);
-                }
-            }.setItem(ItemUtils.getGlassPane(DyeColor.RED), "Bieten");
-            ItemUtils.setLore(bid.getItem(), "Mindesgebot: "
-                    + RaidCraft.getEconomy().getFormattedAmount(getMinimumBid(auction)));
-            menu.addMenuItem(bid);
-        } else {
-            menu.empty();
-        }
-
-        if (auction.getDirect_buy() >= 0) {
-            MenuItemAPI direct = new MenuItemAPI() {
-                @Override
-                public void trigger(Player player) {
-
-                    getAPI().playerAuctionDirectBuy(player, auction.getId());
-                }
-            }.setItem(ItemUtils.getGlassPane(DyeColor.YELLOW), "Direktkauf");
-            ItemUtils.setLore(direct.getItem(), "Preis: "
-                    + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
-            menu.addMenuItem(direct);
-        } else {
-            menu.empty();
-        }
-
-        ChestUI.getInstance().openMenu(player, menu);
-    }
 
     public double getMinimumBid(TAuction auction) {
 
         TBid hBid = getHeighestBid(auction.getId());
         return (hBid == null) ? auction.getStart_bid() : hBid.getBid();
-    }
-
-    public void playerStartBid(final Player player, final TAuction auction) {
-
-        double heighestBid = getMinimumBid(auction);
-        ChestUI.getInstance().openMoneySelection(player, "Dein Gebot", heighestBid, new MoneySelectorListener() {
-
-            @Override
-            public void cancel(Player player) {
-
-                player.sendMessage("Du hast nichts geboten");
-            }
-
-            @Override
-            public void accept(Player player, double money) {
-                // TODO: move to api
-                getAPI().playerAuctionBid(player.getUniqueId(), auction.getId(), money);
-            }
-        });
     }
 
 

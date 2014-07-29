@@ -53,7 +53,11 @@ public class AdminCommands {
             if (plattform != null) {
                 sender.sendMessage("Plattform already exists");
             }
-            int id = plugin.createPlattform(context.getString(0));
+            int id = plugin.getAPI().createPlattform(context.getString(0));
+            if(id < 0) {
+                sender.sendMessage("Name schon vergeben");
+                return;
+            }
             sender.sendMessage("Plattform created with id: " + id);
         }
 

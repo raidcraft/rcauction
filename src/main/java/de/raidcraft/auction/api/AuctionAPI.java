@@ -21,4 +21,6 @@ public interface AuctionAPI {
     public void playerOpenOwnPlattformInventory(Player player, String plattform);
 
     public void playerOpenPlattform(Player player, String plattform);
+
+    public int createPlattform(String name);
 }

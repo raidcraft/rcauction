@@ -3,6 +3,8 @@ package de.raidcraft.auction;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
+import de.raidcraft.api.chestui.MoneySelectorListener;
+import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
 import de.raidcraft.api.economy.BalanceSource;
@@ -109,7 +111,7 @@ public class AuctionExecutor implements AuctionAPI {
                 @Override
                 public void trigger(Player player) {
 
-                    plugin.selectAuction(player, auc);
+                    selectAuction(player, auc);
                 }
             }.setItem(item));
             MenuItemAPI price = new MenuItemAPI() {
@@ -117,7 +119,7 @@ public class AuctionExecutor implements AuctionAPI {
                 @Override
                 public void trigger(Player player) {
 
-                    plugin.selectAuction(player, auc);
+                    selectAuction(player, auc);
                 }
             }.setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
             ItemUtils.setLore(price.getItem(), "Mindesgebot: "
@@ -151,6 +153,18 @@ public class AuctionExecutor implements AuctionAPI {
             i++;
         }
         ChestUI.getInstance().openMenu(player, menu);
+    }
+
+    @Override
+    public int createPlattform(String name) {
+
+        if (plugin.getPlattform(name) != null) {
+            return -1;
+        }
+        TPlattform plattform = new TPlattform();
+        plattform.setName(name);
+        plugin.getDatabase().save(plattform);
+        return plattform.getId();
     }
 
     @Override
@@ -274,4 +288,99 @@ public class AuctionExecutor implements AuctionAPI {
         }
         player.sendMessage("Erfolgreich gekauft");
     }
+
+    // TODO: move to own class?
+    public void selectAuction(final Player player, TAuction auction) {
+
+        Menu menu = new Menu("Auktionsoptionen");
+        ItemStack item;
+
+        try {
+            item = plugin.getItemForId(auction.getItem());
+        } catch (StorageException e) {
+            e.printStackTrace();
+            return;
+        }
+        menu.empty();
+        menu.addMenuItem(new MenuItem().setItem(item));
+        MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
+        ItemUtils.setLore(price.getItem(), "Startgebot: "
+                + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auction)),
+                "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
+        menu.addMenuItem(price);
+
+        Date now = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM HH:mm:ss");
+        String endDate = format.format(auction.getAuction_end());
+
+        // day item
+        ItemStack days_normal = ItemUtils.getGlassPane(DyeColor.WHITE);
+        ItemUtils.setDisplayName(days_normal, "Aktionstage");
+        ItemUtils.setLore(days_normal, "Ende: " + endDate);
+        MenuItemAPI days = new MenuItemInteractive(days_normal, null,
+                plugin.getDateDiff(now, auction.getAuction_end(), TimeUnit.DAYS), 99);
+        menu.addMenuItem(days);
+
+        // hour item
+        ItemStack hours_normal = ItemUtils.getGlassPane(DyeColor.WHITE);
+        ItemUtils.setDisplayName(hours_normal, "Auktionsstunden");
+        ItemUtils.setLore(hours_normal, "Ende: " + endDate);
+        MenuItemAPI hours = new MenuItemInteractive(hours_normal, null,
+                plugin.getDateDiff(now, auction.getAuction_end(), TimeUnit.HOURS) % 24, 99);
+        menu.addMenuItem(hours);
+
+        menu.empty();
+        if (auction.getStart_bid() >= 0) {
+            MenuItemAPI bid = new MenuItemAPI() {
+                @Override
+                public void trigger(Player player) {
+
+                    playerStartBid(player, auction);
+                }
+            }.setItem(ItemUtils.getGlassPane(DyeColor.RED), "Bieten");
+            ItemUtils.setLore(bid.getItem(), "Mindesgebot: "
+                    + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auction)));
+            menu.addMenuItem(bid);
+        } else {
+            menu.empty();
+        }
+
+        if (auction.getDirect_buy() >= 0) {
+            MenuItemAPI direct = new MenuItemAPI() {
+                @Override
+                public void trigger(Player player) {
+
+                    playerAuctionDirectBuy(player, auction.getId());
+                }
+            }.setItem(ItemUtils.getGlassPane(DyeColor.YELLOW), "Direktkauf");
+            ItemUtils.setLore(direct.getItem(), "Preis: "
+                    + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
+            menu.addMenuItem(direct);
+        } else {
+            menu.empty();
+        }
+
+        ChestUI.getInstance().openMenu(player, menu);
+    }
+
+    // TODO: move to own class?
+    public void playerStartBid(final Player player, final TAuction auction) {
+
+        double heighestBid = plugin.getMinimumBid(auction);
+        ChestUI.getInstance().openMoneySelection(player, "Dein Gebot", heighestBid, new MoneySelectorListener() {
+
+            @Override
+            public void cancel(Player player) {
+
+                player.sendMessage("Du hast nichts geboten");
+            }
+
+            @Override
+            public void accept(Player player, double money) {
+
+                playerAuctionBid(player.getUniqueId(), auction.getId(), money);
+            }
+        });
+    }
+
 }

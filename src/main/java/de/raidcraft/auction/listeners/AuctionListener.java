@@ -3,7 +3,6 @@ package de.raidcraft.auction.listeners;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
-import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
 import de.raidcraft.api.economy.BalanceSource;
@@ -105,15 +104,29 @@ public class AuctionListener implements PluginActionListener {
         List<TAuction> auctions = plugin.getActiveAuctions(plattform.getName());
         Menu menu = new Menu("Plattform: " + plattform.getName());
         int i = 0;
-        for (TAuction auc : auctions) {
+        for (final TAuction auc : auctions) {
             ItemStack item = null;
             try {
                 item = plugin.getItemForId(auc.getItem());
             } catch (StorageException e) {
                 plugin.getLogger().warning("cannot load item " + auc.getStart_bid() + " for auction " + auc.getId());
             }
-            menu.addMenuItem(new MenuItem().setItem(item));
-            MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
+            menu.addMenuItem(new MenuItemAPI() {
+
+                @Override
+                public void trigger(Player player) {
+
+                    plugin.selectAuction(player, auc);
+                }
+            }.setItem(item));
+            MenuItemAPI price = new MenuItemAPI() {
+
+                @Override
+                public void trigger(Player player) {
+
+                    plugin.selectAuction(player, auc);
+                }
+            }.setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
             RC_Items.setLore(price.getItem(), "Startgebot: " + RaidCraft.getEconomy().getFormattedAmount(auc.getStart_bid()),
                     "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auc.getDirect_buy()));
             menu.addMenuItem(price);
@@ -127,7 +140,7 @@ public class AuctionListener implements PluginActionListener {
             RC_Items.setDisplayName(days_normal, "Aktionstage");
             RC_Items.setLore(days_normal, "Ende: " + endDate);
             MenuItemAPI days = new MenuItemInteractive(days_normal, null,
-                    getDateDiff(now, auc.getAuction_end(), TimeUnit.DAYS), 99);
+                    AuctionPlugin.getDateDiff(now, auc.getAuction_end(), TimeUnit.DAYS), 99);
             menu.addMenuItem(days);
 
             // hour item
@@ -135,7 +148,7 @@ public class AuctionListener implements PluginActionListener {
             RC_Items.setDisplayName(hours_normal, "Auktionsstunden");
             RC_Items.setLore(hours_normal, "Ende: " + endDate);
             MenuItemAPI hours = new MenuItemInteractive(hours_normal, null,
-                    getDateDiff(now, auc.getAuction_end(), TimeUnit.HOURS) % 24, 99);
+                    AuctionPlugin.getDateDiff(now, auc.getAuction_end(), TimeUnit.HOURS) % 24, 99);
             menu.addMenuItem(hours);
 
             if (i % 2 == 0) {
@@ -144,12 +157,6 @@ public class AuctionListener implements PluginActionListener {
             i++;
         }
         ChestUI.getInstance().openMenu(player, menu);
-    }
-
-    public static int getDateDiff(Date oldDate, Date newDate, TimeUnit timeUnit) {
-
-        long diffInMillies = newDate.getTime() - oldDate.getTime();
-        return (int) timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
     }
 
     @RcPluginAction

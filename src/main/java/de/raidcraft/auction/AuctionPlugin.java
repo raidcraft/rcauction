@@ -2,30 +2,40 @@ package de.raidcraft.auction;
 
 import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
+import de.raidcraft.RaidCraft;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.chestui.ChestUI;
 import de.raidcraft.api.chestui.Menu;
+import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
+import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
+import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
+import de.raidcraft.api.items.RC_Items;
 import de.raidcraft.api.pluginaction.RC_PluginAction;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionBid;
+import de.raidcraft.auction.api.pluginactions.PA_PlayerAuctionDirectBuy;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.listeners.AuctionListener;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
 import de.raidcraft.auction.model.TPlattform;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.persistence.PersistenceException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Sebastian
@@ -174,6 +184,104 @@ public class AuctionPlugin extends BasePlugin implements AuctionAPI {
         plattform.setName(name);
         getDatabase().save(plattform);
         return plattform.getId();
+    }
+
+    public void selectAuction(final Player player, TAuction auction) {
+
+        Menu menu = new Menu("Auktionsoptionen");
+        ItemStack item;
+
+        try {
+            item = getItemForId(auction.getItem());
+        } catch (StorageException e) {
+            e.printStackTrace();
+            return;
+        }
+        menu.empty();
+        menu.addMenuItem(new MenuItem().setItem(item));
+        MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
+        RC_Items.setLore(price.getItem(), "Startgebot: " + RaidCraft.getEconomy().getFormattedAmount(auction.getStart_bid()),
+                "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
+        menu.addMenuItem(price);
+
+        Date now = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM HH:mm:ss");
+        String endDate = format.format(auction.getAuction_end());
+
+        // day item
+        ItemStack days_normal = RC_Items.getGlassPane(DyeColor.WHITE);
+        RC_Items.setDisplayName(days_normal, "Aktionstage");
+        RC_Items.setLore(days_normal, "Ende: " + endDate);
+        MenuItemAPI days = new MenuItemInteractive(days_normal, null,
+                getDateDiff(now, auction.getAuction_end(), TimeUnit.DAYS), 99);
+        menu.addMenuItem(days);
+
+        // hour item
+        ItemStack hours_normal = RC_Items.getGlassPane(DyeColor.WHITE);
+        RC_Items.setDisplayName(hours_normal, "Auktionsstunden");
+        RC_Items.setLore(hours_normal, "Ende: " + endDate);
+        MenuItemAPI hours = new MenuItemInteractive(hours_normal, null,
+                getDateDiff(now, auction.getAuction_end(), TimeUnit.HOURS) % 24, 99);
+        menu.addMenuItem(hours);
+
+        menu.empty();
+        if (auction.getStart_bid() >= 0) {
+            menu.addMenuItem(new MenuItemAPI() {
+                @Override
+                public void trigger(Player player) {
+
+                    playerStartBid(player, auction);
+                }
+            }.setItem(RC_Items.getGlassPane(DyeColor.RED), "Bieten"));
+        } else {
+            menu.empty();
+        }
+
+        if (auction.getDirect_buy() >= 0) {
+            MenuItemAPI direct = new MenuItemAPI() {
+                @Override
+                public void trigger(Player player) {
+
+                    RC_PluginAction.getInstance().fire(
+                            new PA_PlayerAuctionDirectBuy(player, auction.getId()));
+                }
+            }.setItem(RC_Items.getGlassPane(DyeColor.YELLOW), "Direktkauf");
+            RC_Items.setLore(direct.getItem(), "Preis: "
+                    + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
+            menu.addMenuItem(direct);
+        } else {
+            menu.empty();
+        }
+
+        ChestUI.getInstance().openMenu(player, menu);
+    }
+
+    public void playerStartBid(final Player player, final TAuction auction) {
+
+        TBid hBid = getHeighestBid(auction.getId());
+        double heighestBid = (hBid == null) ? auction.getStart_bid() : hBid.getBid();
+        ChestUI.getInstance().openMoneySelection(player, "Dein Gebot", heighestBid, new MoneySelectorListener() {
+
+            @Override
+            public void cancel(Player player) {
+
+                player.sendMessage("Du hast nichts geboten");
+            }
+
+            @Override
+            public void accept(Player player, double money) {
+
+                RC_PluginAction.getInstance().fire(
+                        new PA_PlayerAuctionBid(player.getUniqueId(), auction.getId(), money));
+            }
+        });
+    }
+
+
+    public static int getDateDiff(Date oldDate, Date newDate, TimeUnit timeUnit) {
+
+        long diffInMillies = newDate.getTime() - oldDate.getTime();
+        return (int) timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
     }
 
     @Override

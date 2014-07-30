@@ -2,11 +2,8 @@ package de.raidcraft.auction.api.requirements;
 
 import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.model.TAuction;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 /**
  * @author Dragonfire
@@ -22,9 +19,10 @@ public class AuctionRequirement implements Requirement<Player> {
 
     @Override
     public boolean test(Player player, ConfigurationSection config) {
-        // TODO: optimize count query
-        List<TAuction> auctions = plugin.getAuction(player.getUniqueId());
-        return auctions != null && auctions.size() > 0;
+
+        int count = plugin.getAuctionCount(player.getUniqueId());
+        int needed = config.isSet("count") ? 1 : config.getInt("count");
+        return count >= needed;
     }
 
 

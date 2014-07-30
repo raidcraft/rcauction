@@ -111,9 +111,10 @@ public class AuctionPlugin extends BasePlugin {
                 .gt("auction_end", now).findList();
     }
 
-    public List<TAuction> getAuction(UUID player) {
-        return getDatabase().find(TAuction.class)
-                .where().eq("owner", player).findList();
+    public int getAuctionCount(UUID player) {
+        String sql = "SELECT COUNT(*) c FROM auction_auctions WHERE owner = :player ";
+        SqlRow row = getDatabase().createSqlQuery(sql).setParameter("player", player).findUnique();
+        return (row == null) ? -1 : row.getInteger("c").intValue();
     }
 
     public List<TBid> getEndedAuction() {
@@ -199,7 +200,7 @@ public class AuctionPlugin extends BasePlugin {
     public long getNextAuctionEnd() {
 
         String sql = "SELECT TIME_TO_SEC(TIMEDIFF(auction_end, NOW())) next"
-                + " FROM minecraft_main.auction_auctions "
+                + " FROM auction_auctions "
                 + "WHERE auction_end > NOW() ORDER by auction_END ASC LIMIT 1";
         SqlRow row = getDatabase().createSqlQuery(sql).findUnique();
         return (row == null) ? -1 : row.getLong("next").longValue();

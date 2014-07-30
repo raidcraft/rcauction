@@ -7,6 +7,7 @@ import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
+import de.raidcraft.api.economy.AccountType;
 import de.raidcraft.api.economy.BalanceSource;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.api.AuctionAPI;
@@ -231,9 +232,8 @@ public class AuctionExecutor implements AuctionAPI {
         if (auction == null) {
             return;
         }
-        // TODO: convert to UUID
         if (!RaidCraft.getEconomy().hasEnough(
-                Bukkit.getPlayer(player).getName(), dBid)) {
+                AccountType.PLAYER, player.toString(), dBid)) {
             Bukkit.getPlayer(player).sendMessage("Du hast nicht so viel Geld");
             return;
         }
@@ -272,7 +272,8 @@ public class AuctionExecutor implements AuctionAPI {
             return;
         }
 
-        if (!RaidCraft.getEconomy().hasEnough(player.getName(), auction.getStart_bid())) {
+        if (!RaidCraft.getEconomy().hasEnough(AccountType.PLAYER,
+                player.getUniqueId().toString(), auction.getStart_bid())) {
             player.sendMessage("Du hast nicht genügend Geld");
             return;
         }
@@ -289,7 +290,7 @@ public class AuctionExecutor implements AuctionAPI {
         }
         // TODO: delete item in storage?
         plugin.getDatabase().delete(auction);
-        RaidCraft.getEconomy().substract(player.getName(), auction.getStart_bid(),
+        RaidCraft.getEconomy().substract(AccountType.PLAYER, player.getUniqueId().toString(), auction.getStart_bid(),
                 BalanceSource.AUCTION, "Direktkauf");
         HashMap<Integer, ItemStack> dropItems = player.getInventory().addItem(item);
         for (ItemStack stack : dropItems.values()) {

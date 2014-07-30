@@ -60,6 +60,8 @@ public class AuctionPlugin extends BasePlugin {
             e.printStackTrace();
         }
 
+//        TriggerManager.getInstance().registerTrigger(this, null);
+
         timer = new AuctionTimer(this);
     }
 

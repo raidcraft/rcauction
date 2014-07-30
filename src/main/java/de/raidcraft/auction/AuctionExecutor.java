@@ -266,7 +266,7 @@ public class AuctionExecutor implements AuctionAPI {
         if (auction == null) {
             return;
         }
-        RE_PlayerDirectBuy event = new RE_PlayerDirectBuy(auction);
+        RE_PlayerDirectBuy event = new RE_PlayerDirectBuy(auction, player);
         RaidCraft.callEvent(event);
         if (event.isCancelled()) {
             return;

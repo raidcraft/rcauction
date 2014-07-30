@@ -14,6 +14,7 @@ import de.raidcraft.auction.api.configactions.CA_PlayerAuctionStart;
 import de.raidcraft.auction.api.configactions.CA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.configactions.CA_PlayerOpenPlattform;
 import de.raidcraft.auction.api.trigger.AuctionTrigger;
+import de.raidcraft.auction.api.trigger.PlattformTrigger;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
@@ -49,6 +50,12 @@ public class AuctionPlugin extends BasePlugin {
         setupDatabase();
         registerCommands(AdminCommands.class, getName());
         exectutor = new AuctionExecutor(this);
+        setupActionApi();
+
+        timer = new AuctionTimer(this);
+    }
+
+    public void setupActionApi() {
 
         try {
             ActionFactory.getInstance().registerAction(
@@ -63,8 +70,7 @@ public class AuctionPlugin extends BasePlugin {
         }
 
         TriggerManager.getInstance().registerTrigger(this, new AuctionTrigger());
-
-        timer = new AuctionTimer(this);
+        TriggerManager.getInstance().registerTrigger(this, new PlattformTrigger());
     }
 
     public static Material getPriceMaterial(double money) {

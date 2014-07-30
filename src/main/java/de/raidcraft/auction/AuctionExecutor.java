@@ -15,6 +15,7 @@ import de.raidcraft.auction.api.raidcraftevents.RE_AuctionCreate;
 import de.raidcraft.auction.api.raidcraftevents.RE_AuctionStart;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerBid;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerDirectBuy;
+import de.raidcraft.auction.api.raidcraftevents.RE_PlayerOpenPlattform;
 import de.raidcraft.auction.listeners.PickupListener;
 import de.raidcraft.auction.model.StartAuctionProcess;
 import de.raidcraft.auction.model.TAuction;
@@ -184,6 +185,13 @@ public class AuctionExecutor implements AuctionAPI {
         if (plattform == null) {
             player.sendMessage("Plattform nicht vorhanden: " + sPlattform);
         }
+
+        RE_PlayerOpenPlattform event = new RE_PlayerOpenPlattform(plattform, player);
+        RaidCraft.callEvent(event);
+        if(event.isCancelled()) {
+            return;
+        }
+
         List<TBid> sucessBids = plugin.getEndedAuction(
                 player.getUniqueId(), sPlattform);
         Inventory inv = Bukkit.createInventory(player,

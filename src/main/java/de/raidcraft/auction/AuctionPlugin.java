@@ -6,12 +6,14 @@ import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.action.ActionException;
 import de.raidcraft.api.action.action.ActionFactory;
+import de.raidcraft.api.action.trigger.TriggerManager;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.api.AuctionAPI;
 import de.raidcraft.auction.api.configactions.CA_PlayerAuctionStart;
 import de.raidcraft.auction.api.configactions.CA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.configactions.CA_PlayerOpenPlattform;
+import de.raidcraft.auction.api.trigger.AuctionTrigger;
 import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.model.TAuction;
 import de.raidcraft.auction.model.TBid;
@@ -60,7 +62,7 @@ public class AuctionPlugin extends BasePlugin {
             e.printStackTrace();
         }
 
-//        TriggerManager.getInstance().registerTrigger(this, null);
+        TriggerManager.getInstance().registerTrigger(this, new AuctionTrigger());
 
         timer = new AuctionTimer(this);
     }

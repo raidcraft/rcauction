@@ -3,6 +3,7 @@ package de.raidcraft.auction.api.raidcraftevents;
 import de.raidcraft.auction.model.TAuction;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -20,9 +21,14 @@ public class RE_PlayerDirectBuy extends Event implements Cancellable {
     @Getter
     boolean cancelled = false;
 
-    public RE_PlayerDirectBuy(TAuction auction) {
+    @Setter
+    @Getter
+    private Player player;
+
+    public RE_PlayerDirectBuy(TAuction auction, Player player) {
 
         this.auction = auction;
+        this.player = player;
     }
 
     // Bukkit stuff

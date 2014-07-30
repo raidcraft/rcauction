@@ -9,7 +9,7 @@ import org.bukkit.event.Listener;
 /**
  * @author Dragonfire
  */
-public class PlattformTrigger  extends Trigger implements Listener {
+public class PlattformTrigger extends Trigger implements Listener {
 
     public PlattformTrigger() {
 
@@ -20,6 +20,9 @@ public class PlattformTrigger  extends Trigger implements Listener {
             desc = "If the player open a plattform")
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void ope(RE_PlayerOpenPlattform event) {
-        informListeners("open", event.getPlayer());
+
+        informListeners("open", event.getPlayer(), config ->
+                !config.isSet("plattform")
+                        || config.getString("plattform").equals(event.getPlattform().getName()));
     }
 }

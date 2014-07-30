@@ -6,6 +6,7 @@ import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.action.ActionException;
 import de.raidcraft.api.action.action.ActionFactory;
+import de.raidcraft.api.action.requirement.RequirementFactory;
 import de.raidcraft.api.action.trigger.TriggerManager;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
@@ -13,6 +14,7 @@ import de.raidcraft.auction.api.AuctionAPI;
 import de.raidcraft.auction.api.configactions.CA_PlayerAuctionStart;
 import de.raidcraft.auction.api.configactions.CA_PlayerOpenOwnPlattformInventory;
 import de.raidcraft.auction.api.configactions.CA_PlayerOpenPlattform;
+import de.raidcraft.auction.api.requirements.AuctionRequirement;
 import de.raidcraft.auction.api.trigger.AuctionTrigger;
 import de.raidcraft.auction.api.trigger.PlattformTrigger;
 import de.raidcraft.auction.commands.AdminCommands;
@@ -69,6 +71,8 @@ public class AuctionPlugin extends BasePlugin {
             e.printStackTrace();
         }
 
+        RequirementFactory.getInstance().registerRequirement(this, "auction.has", new AuctionRequirement(this));
+
         TriggerManager.getInstance().registerTrigger(this, new AuctionTrigger());
         TriggerManager.getInstance().registerTrigger(this, new PlattformTrigger());
     }
@@ -105,6 +109,11 @@ public class AuctionPlugin extends BasePlugin {
                 .where()
                 .in("plattform", getPlattform(plattform))
                 .gt("auction_end", now).findList();
+    }
+
+    public List<TAuction> getAuction(UUID player) {
+        return getDatabase().find(TAuction.class)
+                .where().eq("owner", player).findList();
     }
 
     public List<TBid> getEndedAuction() {

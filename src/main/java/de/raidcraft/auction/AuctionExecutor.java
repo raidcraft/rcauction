@@ -7,7 +7,6 @@ import de.raidcraft.api.chestui.MoneySelectorListener;
 import de.raidcraft.api.chestui.menuitems.MenuItem;
 import de.raidcraft.api.chestui.menuitems.MenuItemAPI;
 import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
-import de.raidcraft.api.economy.AccountType;
 import de.raidcraft.api.economy.BalanceSource;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.api.AuctionAPI;
@@ -188,7 +187,7 @@ public class AuctionExecutor implements AuctionAPI {
 
         RE_PlayerOpenPlattform event = new RE_PlayerOpenPlattform(plattform, player);
         RaidCraft.callEvent(event);
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             return;
         }
 
@@ -240,8 +239,7 @@ public class AuctionExecutor implements AuctionAPI {
         if (auction == null) {
             return;
         }
-        if (!RaidCraft.getEconomy().hasEnough(
-                AccountType.PLAYER, player.toString(), dBid)) {
+        if (!RaidCraft.getEconomy().hasEnough(player, dBid)) {
             Bukkit.getPlayer(player).sendMessage("Du hast nicht so viel Geld");
             return;
         }
@@ -280,8 +278,7 @@ public class AuctionExecutor implements AuctionAPI {
             return;
         }
 
-        if (!RaidCraft.getEconomy().hasEnough(AccountType.PLAYER,
-                player.getUniqueId().toString(), auction.getStart_bid())) {
+        if (!RaidCraft.getEconomy().hasEnough(player.getUniqueId(), auction.getStart_bid())) {
             player.sendMessage("Du hast nicht genügend Geld");
             return;
         }
@@ -296,10 +293,13 @@ public class AuctionExecutor implements AuctionAPI {
             player.sendMessage("Konnte Auktionsitems nicht laden: " + auction.getId());
             return;
         }
-        // TODO: delete item in storage?
-        plugin.getDatabase().delete(auction);
-        RaidCraft.getEconomy().substract(AccountType.PLAYER, player.getUniqueId().toString(), auction.getStart_bid(),
+
+        ;
+        RaidCraft.getEconomy().substract(player.getUniqueId(), auction.getDirect_buy(),
                 BalanceSource.AUCTION, "Direktkauf");
+        RaidCraft.getEconomy().add(auction.getOwner(), auction.getDirect_buy(),
+                BalanceSource.AUCTION, "Direktkauf");
+        plugin.getDatabase().delete(auction);
         HashMap<Integer, ItemStack> dropItems = player.getInventory().addItem(item);
         for (ItemStack stack : dropItems.values()) {
             player.getWorld().dropItem(player.getLocation(), stack);

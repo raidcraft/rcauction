@@ -68,7 +68,7 @@ public class StartAuctionProcess {
                 direct_buy = 0;
                 selectStartBid();
             }
-        }.setItem(ItemUtils.getGlassPane(DyeColor.ORANGE, "Direktverkauf + Aktion")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.ORANGE, "Direktverkauf + Auktion")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {
@@ -76,7 +76,7 @@ public class StartAuctionProcess {
                 start_bid = 0;
                 selectStartBid();
             }
-        }.setItem(ItemUtils.getGlassPane(DyeColor.RED, "nur Aktion")));
+        }.setItem(ItemUtils.getGlassPane(DyeColor.RED, "nur Auktion")));
         menu.addMenuItem(new MenuItemAPI() {
             @Override
             public void trigger(Player player) {

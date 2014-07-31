@@ -1,6 +1,7 @@
 package de.raidcraft.auction.listeners;
 
 import de.raidcraft.RaidCraft;
+import de.raidcraft.api.economy.BalanceSource;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerPickupItem;
 import de.raidcraft.auction.model.TBid;
@@ -56,6 +57,12 @@ public class PickupListener implements Listener {
             player.sendMessage("Dein Inventar ist voll.");
             return;
         }
+        double bidAmount = bids.get(slot).getBid();
+        if(!RaidCraft.getEconomy().hasEnough(player.getUniqueId(), bidAmount)) {
+            player.sendMessage("Du hast zu wenig Geld, gebraucht wird: "
+                    + RaidCraft.getEconomy().getFormattedAmount(bidAmount));
+            return;
+        }
         RE_PlayerPickupItem pickupevent =
                 new RE_PlayerPickupItem((Player) holder, storage.getItem(slot));
         RaidCraft.callEvent(pickupevent);
@@ -64,6 +71,10 @@ public class PickupListener implements Listener {
         }
         player.getInventory().setItem(newslot, storage.getItem(slot));
         storage.clear(slot);
+        RaidCraft.getEconomy().substract(player.getUniqueId(), bidAmount,
+                BalanceSource.AUCTION, "Auktion");
+        RaidCraft.getEconomy().add(bids.get(slot).getAuction().getOwner(), bidAmount,
+                BalanceSource.AUCTION, "Auktion");
         plugin.getDatabase().delete(bids.get(slot).getAuction());
     }
 

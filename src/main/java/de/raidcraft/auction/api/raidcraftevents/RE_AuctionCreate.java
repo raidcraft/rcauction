@@ -1,6 +1,6 @@
 package de.raidcraft.auction.api.raidcraftevents;
 
-import de.raidcraft.auction.model.TAuction;
+import de.raidcraft.auction.tables.TAuction;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.event.Cancellable;

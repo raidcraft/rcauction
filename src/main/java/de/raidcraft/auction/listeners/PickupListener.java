@@ -4,7 +4,7 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.economy.BalanceSource;
 import de.raidcraft.auction.AuctionPlugin;
 import de.raidcraft.auction.api.raidcraftevents.RE_PlayerPickupItem;
-import de.raidcraft.auction.model.TBid;
+import de.raidcraft.auction.tables.TBid;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;

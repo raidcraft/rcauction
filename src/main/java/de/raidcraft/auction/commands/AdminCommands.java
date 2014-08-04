@@ -7,7 +7,7 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import de.raidcraft.api.language.TranslationProvider;
 import de.raidcraft.auction.AuctionPlugin;
-import de.raidcraft.auction.model.TPlattform;
+import de.raidcraft.auction.tables.TPlattform;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

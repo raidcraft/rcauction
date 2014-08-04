@@ -1,6 +1,6 @@
 package de.raidcraft.auction.api.raidcraftevents;
 
-import de.raidcraft.auction.model.TPlattform;
+import de.raidcraft.auction.tables.TPlattform;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;

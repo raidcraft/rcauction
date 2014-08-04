@@ -1,7 +1,7 @@
 package de.raidcraft.auction;
 
 import de.raidcraft.auction.listeners.PlayerListener;
-import de.raidcraft.auction.model.TBid;
+import de.raidcraft.auction.tables.TBid;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

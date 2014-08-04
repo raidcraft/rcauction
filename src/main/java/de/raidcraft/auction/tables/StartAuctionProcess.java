@@ -1,4 +1,4 @@
-package de.raidcraft.auction.model;
+package de.raidcraft.auction.tables;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.chestui.ChestUI;

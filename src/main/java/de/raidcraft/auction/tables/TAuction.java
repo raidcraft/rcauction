@@ -1,4 +1,4 @@
-package de.raidcraft.auction.model;
+package de.raidcraft.auction.tables;
 
 import com.avaje.ebean.validation.NotNull;
 import lombok.Getter;

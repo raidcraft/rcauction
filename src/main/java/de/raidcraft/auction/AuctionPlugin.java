@@ -112,6 +112,7 @@ public class AuctionPlugin extends BasePlugin {
     }
 
     public int getAuctionCount(UUID player) {
+
         String sql = "SELECT COUNT(*) c FROM auction_auctions WHERE owner = :player ";
         SqlRow row = getDatabase().createSqlQuery(sql).setParameter("player", player).findUnique();
         return (row == null) ? -1 : row.getInteger("c").intValue();
@@ -220,7 +221,10 @@ public class AuctionPlugin extends BasePlugin {
     public double getMinimumBid(TAuction auction) {
 
         TBid hBid = getHeighestBid(auction.getId());
-        return (hBid == null) ? auction.getStart_bid() : hBid.getBid();
+        if (hBid == null || hBid.getBid() < auction.getStart_bid()) {
+            return auction.getStart_bid();
+        }
+        return hBid.getBid();
     }
 
 

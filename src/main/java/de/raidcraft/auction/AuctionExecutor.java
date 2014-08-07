@@ -132,7 +132,7 @@ public class AuctionExecutor implements AuctionAPI {
                     selectAuction(player, auc);
                 }
             }.setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
-            ItemUtils.setLore(price.getItem(), "Mindesgebot: "
+            ItemUtils.setLore(price.getItem(), "Mindestgebot: "
                     + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auc)),
                     "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auc.getDirect_buy()));
             menu.addMenuItem(price);
@@ -244,7 +244,7 @@ public class AuctionExecutor implements AuctionAPI {
             return;
         }
         if (dBid <= auction.getStart_bid()) {
-            Bukkit.getPlayer(player).sendMessage("Dein Gebot ist zu niedrieg");
+            Bukkit.getPlayer(player).sendMessage("Dein Gebot ist zu niedrig");
             return;
         }
         TBid heighestBid = plugin.getHeighestBid(iAuction);
@@ -356,7 +356,7 @@ public class AuctionExecutor implements AuctionAPI {
                     playerStartBid(player, auction);
                 }
             }.setItem(ItemUtils.getGlassPane(DyeColor.RED), "Bieten");
-            ItemUtils.setLore(bid.getItem(), "Mindesgebot: "
+            ItemUtils.setLore(bid.getItem(), "Mindestgebot: "
                     + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auction)));
             menu.addMenuItem(bid);
         } else {

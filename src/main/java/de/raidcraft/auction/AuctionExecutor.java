@@ -132,9 +132,13 @@ public class AuctionExecutor implements AuctionAPI {
                     selectAuction(player, auc);
                 }
             }.setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
-            ItemUtils.setLore(price.getItem(), "Mindestgebot: "
-                    + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auc)),
-                    "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auc.getDirect_buy()));
+            ItemUtils.setLore(price.getItem(), auc.isAuction()
+                            ? "Mindestgebot: "
+                            + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auc))
+                            : "keine Auktion",
+                    auc.isDirectBuy()
+                            ? "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auc.getDirect_buy())
+                            : "kein Direktkauf");
             menu.addMenuItem(price);
 
             Date now = new Date();
@@ -248,7 +252,7 @@ public class AuctionExecutor implements AuctionAPI {
             return;
         }
         TBid heighestBid = plugin.getHeighestBid(iAuction);
-        if (heighestBid != null && dBid >= heighestBid.getBid()) {
+        if (heighestBid != null && dBid <= heighestBid.getBid()) {
             Bukkit.getPlayer(player).sendMessage("Es gibt bereits ein höheres Gebot");
             return;
         }
@@ -323,7 +327,7 @@ public class AuctionExecutor implements AuctionAPI {
         menu.addMenuItem(new MenuItem().setItem(item));
         MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
         ItemUtils.setLore(price.getItem(), "Startgebot: "
-                + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auction)),
+                        + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auction)),
                 "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));
         menu.addMenuItem(price);
 

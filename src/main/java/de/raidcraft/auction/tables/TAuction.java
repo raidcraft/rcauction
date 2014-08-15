@@ -61,4 +61,14 @@ public class TAuction {
     public TAuction() {
 
     }
+
+    public boolean isAuction() {
+
+        return start_bid >= 0;
+    }
+
+    public boolean isDirectBuy() {
+
+        return direct_buy >= 0;
+    }
 }

@@ -50,7 +50,7 @@ public class AuctionPlugin extends BasePlugin {
 
         itemStore = new ItemStorage(getName());
         setupDatabase();
-        registerCommands(AdminCommands.class, getName());
+        registerCommands(AdminCommands.class);
         exectutor = new AuctionExecutor(this);
         setupActionApi();
 

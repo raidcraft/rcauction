@@ -24,17 +24,17 @@ public class AdminCommands {
             aliases = {"auctions", "shop"},
             desc = "Control Dragonguard settings"
     )
-    @NestedCommand(NestedDragonGuardCommands.class)
+    @NestedCommand(AuctionCommand.class)
     public void auctions(CommandContext context, CommandSender sender) throws CommandException {
 
     }
 
-    public static class NestedDragonGuardCommands {
+    public static class AuctionCommand {
 
         private final AuctionPlugin plugin;
         private final TranslationProvider tr;
 
-        public NestedDragonGuardCommands(AuctionPlugin module) {
+        public AuctionCommand(AuctionPlugin module) {
 
             this.plugin = module;
             this.tr = plugin.getTranslationProvider();

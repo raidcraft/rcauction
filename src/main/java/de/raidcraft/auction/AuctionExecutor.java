@@ -131,7 +131,7 @@ public class AuctionExecutor implements AuctionAPI {
 
                     selectAuction(player, auc);
                 }
-            }.setItem(AuctionPlugin.getPriceMaterial(auc.getStart_bid()), "Preis");
+            }.setItem(AuctionPlugin.getPriceMaterial(plugin.getMaxPriceValue(auc)), "Preis");
             ItemUtils.setLore(price.getItem(), auc.isAuction()
                             ? "Mindestgebot: "
                             + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auc))
@@ -298,7 +298,6 @@ public class AuctionExecutor implements AuctionAPI {
             return;
         }
 
-        ;
         RaidCraft.getEconomy().substract(player.getUniqueId(), auction.getDirect_buy(),
                 BalanceSource.AUCTION, "Direktkauf");
         RaidCraft.getEconomy().add(auction.getOwner(), auction.getDirect_buy(),
@@ -325,7 +324,8 @@ public class AuctionExecutor implements AuctionAPI {
         }
         menu.empty();
         menu.addMenuItem(new MenuItem().setItem(item));
-        MenuItemAPI price = new MenuItem().setItem(AuctionPlugin.getPriceMaterial(auction.getStart_bid()), "Preis");
+        MenuItemAPI price = new MenuItem().setItem(
+                AuctionPlugin.getPriceMaterial(plugin.getMaxPriceValue(auction)), "Preis");
         ItemUtils.setLore(price.getItem(), "Startgebot: "
                         + RaidCraft.getEconomy().getFormattedAmount(plugin.getMinimumBid(auction)),
                 "Direktkauf: " + RaidCraft.getEconomy().getFormattedAmount(auction.getDirect_buy()));

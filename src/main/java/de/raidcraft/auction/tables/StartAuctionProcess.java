@@ -195,7 +195,7 @@ public class StartAuctionProcess {
 
         if (direct_buy >= 0) {
             MenuItem item_direct_buy = new MenuItem();
-            item_direct_buy.setItem(AuctionPlugin.getPriceMaterial(start_bid), "DirektKaufWert");
+            item_direct_buy.setItem(AuctionPlugin.getPriceMaterial(direct_buy), "DirektKaufWert");
             ItemUtils.setLore(item_direct_buy.getItem(), "DirektKaufWert: "
                     + RaidCraft.getEconomy().getFormattedAmount(direct_buy));
             menu.addMenuItem(item_direct_buy);

@@ -227,6 +227,10 @@ public class AuctionPlugin extends BasePlugin {
         return hBid.getBid();
     }
 
+    public double getMaxPriceValue(TAuction auction) {
+        return Math.max(getMinimumBid(auction), auction.getDirect_buy());
+    }
+
 
     public static int getDateDiff(Date oldDate, Date newDate, TimeUnit timeUnit) {
 

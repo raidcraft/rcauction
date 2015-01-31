@@ -18,38 +18,24 @@ import java.util.UUID;
 /**
  * @author Dragonfire
  */
+@Getter
+@Setter
 @Entity
 @Table(name = "auction_auctions")
 public class TAuction {
 
-    @Getter
-    @Setter
     @Id
     private int id;
-    @Getter
-    @Setter
     @NotNull
     private UUID owner;
-    @Getter
-    @Setter
     @NotNull
     private int item;
-    @Getter
-    @Setter
     @NotNull
     @ManyToOne
     private TPlattform plattform;
-    @Getter
-    @Setter
     private double direct_buy;
-    @Getter
-    @Setter
     private Date auction_end;
-    @Getter
-    @Setter
     private double start_bid;
-    @Getter
-    @Setter
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "auction")
     private List<TBid> all_bids = new ArrayList<TBid>();
 

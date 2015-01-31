@@ -13,24 +13,18 @@ import java.util.UUID;
 /**
  * @author Dragonfire
  */
+@Getter
+@Setter
 @Entity
 @Table(name = "auction_bids", uniqueConstraints =
 @UniqueConstraint(columnNames = {"auction_id", "bid"}))
 public class TBid {
 
-    @Getter
-    @Setter
+
     @Id
     private int id;
-
-    @Getter
-    @Setter
     @ManyToOne
     private TAuction auction;
-    @Getter
-    @Setter
     private double bid;
-    @Getter
-    @Setter
     private UUID bidder;
 }

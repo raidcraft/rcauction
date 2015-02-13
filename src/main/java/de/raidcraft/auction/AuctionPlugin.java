@@ -4,7 +4,6 @@ import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
 import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
-import de.raidcraft.api.action.action.ActionException;
 import de.raidcraft.api.action.action.ActionFactory;
 import de.raidcraft.api.action.requirement.RequirementFactory;
 import de.raidcraft.api.action.trigger.TriggerManager;
@@ -26,12 +25,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import javax.persistence.PersistenceException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,7 +61,7 @@ public class AuctionPlugin extends BasePlugin {
             ActionFactory.getInstance().registerAction(
                     this, "openplattform", new CA_PlayerOpenPlattform());
 
-        } catch (ActionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

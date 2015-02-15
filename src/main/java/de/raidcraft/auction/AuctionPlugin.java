@@ -253,7 +253,7 @@ public class AuctionPlugin extends BasePlugin {
             getDatabase();
         } catch (PersistenceException e) {
             e.printStackTrace();
-            getLogger().warning("Installing database for " + getDescription().getName() + " due to first time usage");
+            warning("Installing database for " + getDescription().getName() + " due to first time usage");
             installDDL();
         }
     }

@@ -10,15 +10,13 @@ import javax.persistence.Table;
 /**
  * @author Dragonfire
  */
+@Getter
+@Setter
 @Entity
 @Table(name = "auction_plattforms")
 public class TPlattform {
 
-    @Getter
-    @Setter
     @Id
     private int id;
-    @Getter
-    @Setter
     private String name;
 }

@@ -114,7 +114,7 @@ public class AuctionExecutor implements AuctionAPI {
             try {
                 item = plugin.getItemForId(auc.getItem());
             } catch (StorageException e) {
-                plugin.getLogger().warning("cannot load item " + auc.getStart_bid() + " for auction " + auc.getId());
+                plugin.warning("cannot load item " + auc.getStart_bid() + " for auction " + auc.getId());
             }
             menu.addMenuItem(new MenuItemAPI() {
 

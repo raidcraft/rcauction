@@ -4,9 +4,7 @@ import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
 import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
-import de.raidcraft.api.action.action.ActionFactory;
-import de.raidcraft.api.action.requirement.RequirementFactory;
-import de.raidcraft.api.action.trigger.TriggerManager;
+import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.storage.ItemStorage;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.api.AuctionAPI;
@@ -52,23 +50,13 @@ public class AuctionPlugin extends BasePlugin {
     }
 
     public void setupActionApi() {
-
-        try {
-            ActionFactory.getInstance().registerAction(
-                    this, "start", new CA_PlayerAuctionStart());
-            ActionFactory.getInstance().registerAction(
-                    this, "openplattforminventory", new CA_PlayerOpenOwnPlattformInventory());
-            ActionFactory.getInstance().registerAction(
-                    this, "openplattform", new CA_PlayerOpenPlattform());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        RequirementFactory.getInstance().registerRequirement(this, "auction.has", new AuctionRequirement(this));
-
-        TriggerManager.getInstance().registerTrigger(this, new AuctionTrigger());
-        TriggerManager.getInstance().registerTrigger(this, new PlattformTrigger());
+	    ActionAPI.register(this)
+			    .requirement("auction.has", new AuctionRequirement(this))
+			    .trigger(new AuctionTrigger())
+			    .trigger(new PlattformTrigger())
+			    .action("start", new CA_PlayerAuctionStart())
+			    .action("openplattforminventory", new CA_PlayerOpenOwnPlattformInventory())
+			    .action("openplattform", new CA_PlayerOpenPlattform());
     }
 
     public static Material getPriceMaterial(double money) {

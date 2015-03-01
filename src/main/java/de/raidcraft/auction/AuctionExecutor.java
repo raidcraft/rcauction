@@ -107,6 +107,11 @@ public class AuctionExecutor implements AuctionAPI {
         }
 
         List<TAuction> auctions = plugin.getActiveAuctions(plattform.getName());
+	    if(auctions.size() <= 0){
+		    player.sendMessage("Keine aktuellen Auktionen vorhanden.");
+		    return;
+	    }
+
         Menu menu = new Menu("Plattform: " + plattform.getName());
         int i = 0;
         for (final TAuction auc : auctions) {

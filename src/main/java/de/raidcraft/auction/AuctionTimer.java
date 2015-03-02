@@ -4,6 +4,7 @@ import de.raidcraft.auction.listeners.PlayerListener;
 import de.raidcraft.auction.tables.TBid;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +55,12 @@ public class AuctionTimer implements Runnable {
             return;
         }
         taskId = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this, next);
+    }
+
+    public void stop() {
+
+        Bukkit.getScheduler().cancelTask(taskId);
+        HandlerList.unregisterAll(listener);
     }
 
     public void notifyPlayer(UUID player_id) {

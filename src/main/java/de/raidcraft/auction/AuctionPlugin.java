@@ -49,6 +49,18 @@ public class AuctionPlugin extends BasePlugin {
         timer = new AuctionTimer(this);
     }
 
+    @Override
+    public void disable() {
+
+    }
+
+    @Override
+    public void reload() {
+
+        timer.stop();
+        timer = new AuctionTimer(this);
+    }
+
     public void setupActionApi() {
 	    ActionAPI.register(this)
 			    .requirement("auction.has", new AuctionRequirement(this))
@@ -218,11 +230,6 @@ public class AuctionPlugin extends BasePlugin {
 
         long diffInMillies = newDate.getTime() - oldDate.getTime();
         return (int) timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
-    }
-
-    @Override
-    public void disable() {
-        //TODO: implement
     }
 
     @Override

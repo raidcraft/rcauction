@@ -31,7 +31,6 @@ import org.bukkit.inventory.ItemStack;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -308,10 +307,8 @@ public class AuctionExecutor implements AuctionAPI {
         RaidCraft.getEconomy().add(auction.getOwner(), auction.getDirect_buy(),
                 BalanceSource.AUCTION, "Direktkauf");
         plugin.getDatabase().delete(auction);
-        HashMap<Integer, ItemStack> dropItems = player.getInventory().addItem(item);
-        for (ItemStack stack : dropItems.values()) {
-            player.getWorld().dropItem(player.getLocation(), stack);
-        }
+        InventoryUtils.addOrDropItems(player, item);
+        player.closeInventory();
         player.sendMessage("Erfolgreich gekauft");
     }
 

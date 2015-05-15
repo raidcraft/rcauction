@@ -9,18 +9,18 @@ import java.util.UUID;
  */
 public interface AuctionAPI {
 
-    public void playerAuctionBid(UUID player, int auction, double bid);
+    void playerAuctionBid(UUID player, int auction, double bid);
 
-    public void playerAuctionCreate(Player player, String plattform, int inventorySlot,
-                                    double startBid, double directBuy, int durationInDays);
+    void playerAuctionCreate(Player player, String plattform, int inventorySlot,
+                             double startBid, double directBuy, int durationInDays);
 
-    public void playerAuctionDirectBuy(Player player, int auction);
+    void playerAuctionDirectBuy(Player player, int auction);
 
-    public void playerAuctionStart(Player player, String plattform);
+    void playerAuctionStart(Player player, String plattform);
 
-    public void playerOpenOwnPlattformInventory(Player player, String plattform);
+    void playerOpenOwnPlattformInventory(Player player, String plattform);
 
-    public void playerOpenPlattform(Player player, String plattform);
+    void playerOpenPlattform(Player player, String plattform);
 
-    public int createPlattform(String name);
+    int createPlattform(String name);
 }

@@ -1,8 +1,5 @@
 package de.raidcraft.auction;
 
-import com.avaje.ebean.RawSql;
-import com.avaje.ebean.RawSqlBuilder;
-import com.avaje.ebean.SqlRow;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.storage.ItemStorage;
@@ -18,6 +15,9 @@ import de.raidcraft.auction.commands.AdminCommands;
 import de.raidcraft.auction.tables.TAuction;
 import de.raidcraft.auction.tables.TBid;
 import de.raidcraft.auction.tables.TPlattform;
+import io.ebean.RawSql;
+import io.ebean.RawSqlBuilder;
+import io.ebean.SqlRow;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -108,7 +108,7 @@ public class AuctionPlugin extends BasePlugin {
     public int getAuctionCount(UUID player) {
 
         String sql = "SELECT COUNT(*) c FROM auction_auctions WHERE owner = :player ";
-        SqlRow row = getDatabase().createSqlQuery(sql).setParameter("player", player).findUnique();
+        io.ebean.SqlRow row = getDatabase().createSqlQuery(sql).setParameter("player", player).findOne();
         return (row == null) ? -1 : row.getInteger("c").intValue();
     }
 
@@ -182,13 +182,13 @@ public class AuctionPlugin extends BasePlugin {
 
         return getDatabase().find(TBid.class)
                 .where().eq("auction_id", auction_id).order()
-                .desc("bid").setMaxRows(1).findUnique();
+                .desc("bid").setMaxRows(1).findOne();
 
     }
 
     public TAuction getAuction(int auction_id) {
 
-        return getDatabase().find(TAuction.class).where().eq("id", auction_id).findUnique();
+        return getDatabase().find(TAuction.class).where().eq("id", auction_id).findOne();
     }
 
 
@@ -197,7 +197,7 @@ public class AuctionPlugin extends BasePlugin {
         String sql = "SELECT TIME_TO_SEC(TIMEDIFF(auction_end, NOW())) next"
                 + " FROM auction_auctions "
                 + "WHERE auction_end > NOW() ORDER by auction_END ASC LIMIT 1";
-        SqlRow row = getDatabase().createSqlQuery(sql).findUnique();
+        SqlRow row = getDatabase().createSqlQuery(sql).findOne();
         return (row == null) ? -1 : row.getLong("next").longValue();
     }
 
@@ -249,7 +249,6 @@ public class AuctionPlugin extends BasePlugin {
         } catch (PersistenceException e) {
             e.printStackTrace();
             warning("Installing database for " + getDescription().getName() + " due to first time usage");
-            installDDL();
         }
     }
 

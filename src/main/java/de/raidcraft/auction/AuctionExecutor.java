@@ -10,11 +10,7 @@ import de.raidcraft.api.chestui.menuitems.MenuItemInteractive;
 import de.raidcraft.api.economy.BalanceSource;
 import de.raidcraft.api.storage.StorageException;
 import de.raidcraft.auction.api.AuctionAPI;
-import de.raidcraft.auction.api.raidcraftevents.RE_AuctionCreate;
-import de.raidcraft.auction.api.raidcraftevents.RE_AuctionStart;
-import de.raidcraft.auction.api.raidcraftevents.RE_PlayerBid;
-import de.raidcraft.auction.api.raidcraftevents.RE_PlayerDirectBuy;
-import de.raidcraft.auction.api.raidcraftevents.RE_PlayerOpenPlattform;
+import de.raidcraft.auction.api.raidcraftevents.*;
 import de.raidcraft.auction.listeners.PickupListener;
 import de.raidcraft.auction.tables.StartAuctionProcess;
 import de.raidcraft.auction.tables.TAuction;
@@ -83,7 +79,7 @@ public class AuctionExecutor implements AuctionAPI {
         if (event.isCancelled()) {
             return;
         }
-        plugin.getDatabase().save(auction);
+        plugin.getRcDatabase().save(auction);
         player.sendMessage("Auktion erfolgreich erstellt");
 
         // auto bid that if nobody bids the creator get it
@@ -91,7 +87,7 @@ public class AuctionExecutor implements AuctionAPI {
         creatorBid.setAuction(auction);
         creatorBid.setBid(-1);
         creatorBid.setBidder(player.getUniqueId());
-        plugin.getDatabase().save(creatorBid);
+        plugin.getRcDatabase().save(creatorBid);
 
         plugin.getTimer().start();
     }
@@ -181,7 +177,7 @@ public class AuctionExecutor implements AuctionAPI {
         }
         TPlattform plattform = new TPlattform();
         plattform.setName(name);
-        plugin.getDatabase().save(plattform);
+        plugin.getRcDatabase().save(plattform);
         return plattform.getId();
     }
 
@@ -269,7 +265,7 @@ public class AuctionExecutor implements AuctionAPI {
         if (event.isCancelled()) {
             return;
         }
-        plugin.getDatabase().save(bid);
+        plugin.getRcDatabase().save(bid);
         Bukkit.getPlayer(player).sendMessage("Erfolgreich geboten");
     }
 
@@ -306,7 +302,7 @@ public class AuctionExecutor implements AuctionAPI {
                 BalanceSource.AUCTION, "Direktkauf");
         RaidCraft.getEconomy().add(auction.getOwner(), auction.getDirect_buy(),
                 BalanceSource.AUCTION, "Direktkauf");
-        plugin.getDatabase().delete(auction);
+        plugin.getRcDatabase().delete(auction);
         InventoryUtils.addOrDropItems(player, item);
         player.closeInventory();
         player.sendMessage("Erfolgreich gekauft");

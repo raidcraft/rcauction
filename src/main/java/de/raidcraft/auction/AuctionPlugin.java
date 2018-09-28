@@ -90,7 +90,7 @@ public class AuctionPlugin extends BasePlugin {
 
     public TPlattform getPlattform(String name) {
 
-        List<TPlattform> platts = getDatabase().find(TPlattform.class)
+        List<TPlattform> platts = getRcDatabase().find(TPlattform.class)
                 .where()
                 .eq("name", name).setMaxRows(1).findList();
         return (platts.size() > 0) ? platts.get(0) : null;
@@ -99,7 +99,7 @@ public class AuctionPlugin extends BasePlugin {
     public List<TAuction> getActiveAuctions(String plattform) {
 
         Date now = new Date();
-        return getDatabase().find(TAuction.class).fetch("plattform")
+        return getRcDatabase().find(TAuction.class).fetch("plattform")
                 .where()
                 .in("plattform", getPlattform(plattform))
                 .gt("auction_end", now).findList();
@@ -108,7 +108,7 @@ public class AuctionPlugin extends BasePlugin {
     public int getAuctionCount(UUID player) {
 
         String sql = "SELECT COUNT(*) c FROM auction_auctions WHERE owner = :player ";
-        io.ebean.SqlRow row = getDatabase().createSqlQuery(sql).setParameter("player", player).findOne();
+        io.ebean.SqlRow row = getRcDatabase().createSqlQuery(sql).setParameter("player", player).findOne();
         return (row == null) ? -1 : row.getInteger("c").intValue();
     }
 
@@ -140,7 +140,7 @@ public class AuctionPlugin extends BasePlugin {
                 .columnMapping("a.start_bid", "auction.start_bid")
                 .create();
 
-        return getDatabase().find(TBid.class).setRawSql(rawSql).where()
+        return getRcDatabase().find(TBid.class).setRawSql(rawSql).where()
                 .findList();
     }
 
@@ -172,7 +172,7 @@ public class AuctionPlugin extends BasePlugin {
                 .columnMapping("a.start_bid", "auction.start_bid")
                 .create();
 
-        return getDatabase().find(TBid.class).setRawSql(rawSql).where()
+        return getRcDatabase().find(TBid.class).setRawSql(rawSql).where()
                 .eq("auction.plattform.name", plattform)
                 .eq("bidder", player)
                 .findList();
@@ -180,7 +180,7 @@ public class AuctionPlugin extends BasePlugin {
 
     public TBid getHeighestBid(int auction_id) {
 
-        return getDatabase().find(TBid.class)
+        return getRcDatabase().find(TBid.class)
                 .where().eq("auction_id", auction_id).order()
                 .desc("bid").setMaxRows(1).findOne();
 
@@ -188,7 +188,7 @@ public class AuctionPlugin extends BasePlugin {
 
     public TAuction getAuction(int auction_id) {
 
-        return getDatabase().find(TAuction.class).where().eq("id", auction_id).findOne();
+        return getRcDatabase().find(TAuction.class).where().eq("id", auction_id).findOne();
     }
 
 
@@ -197,7 +197,7 @@ public class AuctionPlugin extends BasePlugin {
         String sql = "SELECT TIME_TO_SEC(TIMEDIFF(auction_end, NOW())) next"
                 + " FROM auction_auctions "
                 + "WHERE auction_end > NOW() ORDER by auction_END ASC LIMIT 1";
-        SqlRow row = getDatabase().createSqlQuery(sql).findOne();
+        SqlRow row = getRcDatabase().createSqlQuery(sql).findOne();
         return (row == null) ? -1 : row.getLong("next").longValue();
     }
 
@@ -245,7 +245,7 @@ public class AuctionPlugin extends BasePlugin {
     private void setupDatabase() {
 
         try {
-            getDatabase();
+            getRcDatabase();
         } catch (PersistenceException e) {
             e.printStackTrace();
             warning("Installing database for " + getDescription().getName() + " due to first time usage");

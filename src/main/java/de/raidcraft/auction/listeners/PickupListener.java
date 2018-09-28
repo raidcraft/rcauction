@@ -75,7 +75,7 @@ public class PickupListener implements Listener {
                 BalanceSource.AUCTION, "Auktion");
         RaidCraft.getEconomy().add(bids.get(slot).getAuction().getOwner(), bidAmount,
                 BalanceSource.AUCTION, "Auktion");
-        plugin.getDatabase().delete(bids.get(slot).getAuction());
+        plugin.getRcDatabase().delete(bids.get(slot).getAuction());
     }
 
     @EventHandler

@@ -1,0 +1,3 @@
+entity-packages: de.raidcraft.auction
+transactional-packages: de.raidcraft.auction
+querybean-packages: de.raidcraft.auction

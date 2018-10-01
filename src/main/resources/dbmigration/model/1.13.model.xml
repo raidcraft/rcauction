@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="auction_auctions" pkName="pk_auction_auctions">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="owner" type="uuid" notnull="true"/>
+            <column name="item" type="integer" notnull="true"/>
+            <column name="plattform_id" type="integer" notnull="true" references="auction_plattforms.id"
+                    foreignKeyName="fk_auction_auctions_plattform_id"
+                    foreignKeyIndex="ix_auction_auctions_plattform_id"/>
+            <column name="direct_buy" type="double" notnull="true"/>
+            <column name="auction_end" type="timestamp"/>
+            <column name="start_bid" type="double" notnull="true"/>
+        </createTable>
+        <createTable name="auction_bids" pkName="pk_auction_bids">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="auction_id" type="integer" references="auction_auctions.id"
+                    foreignKeyName="fk_auction_bids_auction_id" foreignKeyIndex="ix_auction_bids_auction_id"/>
+            <column name="bid" type="double" notnull="true"/>
+            <column name="bidder" type="uuid"/>
+            <uniqueConstraint name="uq_auction_bids_auction_id_bid" columnNames="auction_id,bid" oneToOne="false"
+                              nullableColumns="auction_id"/>
+        </createTable>
+        <createTable name="auction_plattforms" pkName="pk_auction_plattforms">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="name" type="varchar"/>
+        </createTable>
+    </changeSet>
+</migration>
